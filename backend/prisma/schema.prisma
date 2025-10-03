@@ -120,6 +120,11 @@ model User {
   userStats            UserStats[]
   userAchievements     UserAchievement[]
 
+  // Assignments (tasks) relations
+  created_assignments  Assignment[]          @relation("UserCreatedAssignments")
+  assignmentSubmissions AssignmentSubmission[] @relation("AssignmentUser")
+  assignmentReviews    AssignmentSubmission[] @relation("AssignmentReviewer")
+
   @@index([role])
   @@index([status])
   @@map("USERS")
@@ -319,7 +324,7 @@ model Assignment {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
   updated_at  DateTime @updatedAt @db.Timestamptz(6)
 
-  createdBy   User     @relation(fields: [created_by], references: [id])
+  createdBy   User     @relation("UserCreatedAssignments", fields: [created_by], references: [id])
   submissions AssignmentSubmission[]
 
   @@map("ASSIGNMENTS")
@@ -338,8 +343,8 @@ model AssignmentSubmission {
   created_at    DateTime               @default(now()) @db.Timestamptz(6)
 
   assignment    Assignment             @relation(fields: [assignment_id], references: [id])
-  user          User                   @relation(fields: [user_id], references: [id])
-  reviewer      User?                  @relation(fields: [reviewed_by], references: [id])
+  user          User                   @relation("AssignmentUser", fields: [user_id], references: [id])
+  reviewer      User?                  @relation("AssignmentReviewer", fields: [reviewed_by], references: [id])
 
   @@index([assignment_id])
   @@index([user_id])
