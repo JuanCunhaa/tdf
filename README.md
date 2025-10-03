@@ -1,3 +1,5 @@
+# TDF — Tropa do Force (Rankup)
+
 Tropa do Force (TDF) — Plataforma Web (Rankup)
 
 Monorepo com frontend (React + Tailwind) e backend (Node/Express + Prisma/PostgreSQL), incluindo autenticação JWT, uploads de imagens, painel Admin e painel Usuário.
