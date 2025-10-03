@@ -10,6 +10,7 @@ const schema = z.object({
   MAX_UPLOAD_MB: z.coerce.number().default(10),
   DISCORD_BOT_TOKEN: z.string().optional(),
   DISCORD_CHANNEL_ID: z.string().optional(),
+  DISCORD_RECRUITMENT_WEBHOOK: z.string().url().optional(),
   CORS_ORIGIN: z.string().optional(),
   // Optional bootstrap admin
   SEED_ADMIN_ENABLED: z.string().optional(),
