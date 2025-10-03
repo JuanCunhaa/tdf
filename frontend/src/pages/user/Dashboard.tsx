@@ -41,6 +41,14 @@ export default function UserDashboard(){
             <div key={g.id} className="border-t border-slate-700 pt-2 mt-2">
               <div className="font-semibold">{g.title}</div>
               <div className="text-sm text-slate-300">{g.description}</div>
+              {g.target_amount != null && (
+                <div className="mt-2">
+                  <div className="h-2 bg-slate-700 rounded">
+                    <div className="h-2 bg-neon-600 rounded" style={{ width: `${Math.min(100, Math.floor(((g.progress?.mine||0) / g.target_amount) * 100))}%` }}></div>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">{g.progress?.mine || 0} / {g.target_amount} {g.unit || ''}</div>
+                </div>
+              )}
               <div className="mt-2 text-sm">Status hoje: <span className="text-neon-500">{g.todayStatus || 'NENHUM'}</span></div>
               <a className="btn mt-2 inline-block" href="/app/goals">Enviar comprovação</a>
             </div>
