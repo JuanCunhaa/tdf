@@ -121,13 +121,13 @@ model User {
 model RecruitmentApplication {
   id                   String            @id @default(uuid()) @db.Uuid
   nickname             String
-  real_name            String
+  real_name            String?
   discord_tag          String
   age                  Int
-  country              String
-  focus_area           String            // MINERACAO | FARM | SAQUE
+  country              String?
+  focus_area           String?           // MINERACAO | FARM | SAQUE
   prior_clans          String?
-  motivation           String
+  motivation           String?
   accepts_rules        Boolean
   portfolio_links      String?
   status               ApplicationStatus @default(PENDING)
