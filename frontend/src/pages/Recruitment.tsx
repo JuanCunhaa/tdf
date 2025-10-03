@@ -69,7 +69,7 @@ export default function Recruitment(){
               <span className="px-3 py-2 rounded bg-slate-900 border border-slate-700 font-mono tracking-widest text-neon-500">{challenge || '...'}</span>
               <button type="button" className="btn-outline" onClick={refreshChallenge}>Recarregar</button>
             </div>
-            <input className="mt-2" placeholder="Digite aqui" value={form.challenge_input} onChange={(e)=>setForm({...form,challenge_input:e.target.value})} required />
+            <input type="text" className="mt-2" placeholder="Digite aqui" value={form.challenge_input} onChange={(e)=>setForm({...form,challenge_input:e.target.value})} required />
           </div>
         </div>
         <button className="btn">Enviar</button>
