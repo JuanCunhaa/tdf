@@ -8,7 +8,6 @@ import UserDashboard from './pages/user/Dashboard';
 import UserGoals from './pages/user/Goals';
 import UserProfile from './pages/user/Profile';
 import UserRanking from './pages/user/Ranking';
-import UserTasks from './pages/user/Tasks';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminForms from './pages/admin/Forms';
 import AdminMembers from './pages/admin/Members';
@@ -54,7 +53,6 @@ function Layout({ children }: { children: React.ReactNode }) {
             {token ? (
               <>
                 <Link to="/app" className="hover:text-neon-500">Meu Painel</Link>
-                <Link to="/app/tasks" className="hover:text-neon-500">Submissões</Link>
                 {['ADMIN','ELITE','LEADER'].includes(role||'') && (<Link to="/admin" className="hover:text-neon-500">Admin</Link>)}
                 <span className="text-slate-400">{nickname}</span>
                 <button className="btn" onClick={logout}>Sair</button>
@@ -86,7 +84,6 @@ export default function App() {
           <Route path="/app/goals" element={<Protected><UserGoals /></Protected>} />
           <Route path="/app/profile" element={<Protected><UserProfile /></Protected>} />
           <Route path="/app/ranking" element={<Protected><UserRanking /></Protected>} />
-          <Route path="/app/tasks" element={<Protected><UserTasks /></Protected>} />
 
           <Route path="/admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
           <Route path="/admin/forms" element={<AdminOnly><AdminForms /></AdminOnly>} />
@@ -102,3 +99,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
