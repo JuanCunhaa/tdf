@@ -2,9 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "module": "CommonJS"
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "prisma/seed.ts"]
 }
-
