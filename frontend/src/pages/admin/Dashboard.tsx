@@ -25,7 +25,7 @@ export default function AdminDashboard(){
         <CardLink title="Membros" to="/admin/members" desc="Gerenciar cargos e status" />
         <CardLink title="Criar conta" to="/admin/create-user" desc="Criar membros/admins" />
         <CardLink title="Metas" to="/admin/goals" desc="Criar/arquivar metas" />
-        <CardLink title="Submissões" to="/admin/submissions-hub" desc="Escolha entre Metas ou Tarefas" />
+        <CardLink title="Submissões" to="/admin/assignments" desc="Criar tarefas (título+descrição), atribuir a membros e aprovar/recusar" />
         <CardLink title="Logs" to="/admin/logs" desc="Auditoria e histórico" />
       </div>
 

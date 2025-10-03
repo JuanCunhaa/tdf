@@ -13,12 +13,9 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminForms from './pages/admin/Forms';
 import AdminMembers from './pages/admin/Members';
 import AdminGoals from './pages/admin/Goals';
-import AdminSubmissions from './pages/admin/Submissions';
 import AdminLogs from './pages/admin/Logs';
 import AdminCreateUser from './pages/admin/CreateUser';
-import AdminCreateSubmission from './pages/admin/CreateSubmission';
 import AdminAssignments from './pages/admin/Assignments';
-import SubmissionsHub from './pages/admin/SubmissionsHub';
 import Downloads from './pages/Downloads';
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -92,13 +89,10 @@ export default function App() {
           <Route path="/app/tasks" element={<Protected><UserTasks /></Protected>} />
 
           <Route path="/admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
-          <Route path="/admin/submissions-hub" element={<AdminOnly><SubmissionsHub /></AdminOnly>} />
           <Route path="/admin/forms" element={<AdminOnly><AdminForms /></AdminOnly>} />
           <Route path="/admin/members" element={<AdminOnly><AdminMembers /></AdminOnly>} />
           <Route path="/admin/create-user" element={<AdminOnly><AdminCreateUser /></AdminOnly>} />
           <Route path="/admin/goals" element={<AdminOnly><AdminGoals /></AdminOnly>} />
-          <Route path="/admin/submissions" element={<AdminOnly><AdminSubmissions /></AdminOnly>} />
-          <Route path="/admin/create-submission" element={<AdminOnly><AdminCreateSubmission /></AdminOnly>} />
           <Route path="/admin/assignments" element={<AdminOnly><AdminAssignments /></AdminOnly>} />
           <Route path="/admin/logs" element={<AdminOnly><AdminLogs /></AdminOnly>} />
 
