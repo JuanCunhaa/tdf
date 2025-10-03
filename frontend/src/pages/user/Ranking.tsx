@@ -11,13 +11,25 @@ export default function UserRanking(){
         <div className="card">
           <h2 className="text-xl mb-2">Top Rank Points</h2>
           <ol className="space-y-1 list-decimal list-inside">
-            {(data?.topByRankPoints||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} — {r.rank_points}</li>)}
+            {(data?.topByRankPoints||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} - {r.rank_points}</li>)}
           </ol>
         </div>
         <div className="card">
           <h2 className="text-xl mb-2">Top Metas Concluídas</h2>
           <ol className="space-y-1 list-decimal list-inside">
-            {(data?.topByGoalsCompleted||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} — {r.goals_completed}</li>)}
+            {(data?.topByGoalsCompleted||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} - {r.goals_completed}</li>)}
+          </ol>
+        </div>
+        <div className="card">
+          <h2 className="text-xl mb-2">Top Contribuições (Clan)</h2>
+          <ol className="space-y-1 list-decimal list-inside">
+            {(data?.topByClanContribs||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} - {r.contribs}</li>)}
+          </ol>
+        </div>
+        <div className="card">
+          <h2 className="text-xl mb-2">Top Metas Diárias (Usuário)</h2>
+          <ol className="space-y-1 list-decimal list-inside">
+            {(data?.topByDailyGoals||[]).map((r:any,i:number)=> <li key={i}>{r.nickname} - {r.daily_points}</li>)}
           </ol>
         </div>
       </div>

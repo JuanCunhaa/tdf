@@ -18,6 +18,15 @@ router.get('/', requireAuth, async (req, res) => {
   const goalIds = goals.filter((g:any)=> g.target_amount != null).map((g:any)=> g.id);
   let clanSums: Record<string, number> = {};
   let mySums: Record<string, number> = {};
+  // Daily status (USER is_daily): did I submit today? what status?
+  const userDailyGoalIds = goals.filter((g:any)=> g.scope === 'USER' && g.is_daily).map((g:any)=> g.id);
+  let dailyStatus: Record<string, 'PENDING'|'APPROVED'|'REJECTED'|null> = {};
+  if (userDailyGoalIds.length) {
+    const today = new Date();
+    const dayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const subs = await prisma.goalSubmission.findMany({ where: { goal_id: { in: userDailyGoalIds }, submitted_by: userId, created_at: { gte: dayStart } }, orderBy: { created_at: 'desc' } });
+    subs.forEach((s:any)=>{ if(!(s.goal_id in dailyStatus)) dailyStatus[s.goal_id] = s.status; });
+  }
   if (goalIds.length) {
     const aggClan = await prisma.goalSubmission.groupBy({ by: ['goal_id'], where: { goal_id: { in: goalIds }, status: 'APPROVED' }, _sum: { amount: true } });
     aggClan.forEach((a:any) => { clanSums[a.goal_id] = (a._sum.amount || 0); });
@@ -29,7 +38,8 @@ router.get('/', requireAuth, async (req, res) => {
     const mine = g.target_amount != null ? (mySums[g.id] || 0) : null;
     const clanComplete = g.target_amount != null ? (clan! >= g.target_amount) : false;
     const mineComplete = g.target_amount != null ? (mine! >= g.target_amount) : false;
-    return { ...g, progress: { clan, mine, clanComplete, mineComplete } };
+    const todayStatus = (g.scope === 'USER' && g.is_daily) ? (dailyStatus[g.id] || null) : null;
+    return { ...g, progress: { clan, mine, clanComplete, mineComplete }, todayStatus };
   });
   res.json({ goals: withProgress });
 });
@@ -55,6 +65,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (re
       description: sanitizeText(body.description, 1000)!,
       starts_at: body.starts_at ? new Date(body.starts_at) : null,
       ends_at: body.ends_at ? new Date(body.ends_at) : null,
+      is_daily: body.scope === 'USER',
       created_by: userId,
     },
   });
@@ -91,6 +102,43 @@ router.patch('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async
 router.delete('/:id', requireAuth, requireRole('LEADER'), async (req, res) => {
   await prisma.goal.delete({ where: { id: req.params.id } });
   res.json({ ok: true });
+});
+
+// Admin: goal detail and progress view
+router.get('/:id/detail', requireAuth, requireRole('ADMIN','ELITE','LEADER'), async (req, res) => {
+  const id = req.params.id;
+  const goal = await prisma.goal.findUnique({ where: { id } });
+  if (!goal) return res.status(404).json({ error: 'Goal not found' });
+
+  if (goal.scope === 'CLAN') {
+    const contributions = await prisma.goalSubmission.findMany({
+      where: { goal_id: id },
+      orderBy: { created_at: 'desc' },
+      include: { submittedBy: { select: { id: true, nickname: true } } },
+    });
+    const approved = contributions.filter((c:any)=> c.status === 'APPROVED');
+    const totalApproved = approved.reduce((acc:number, c:any)=> acc + (c.amount || 0), 0);
+    // ranking by approved contributions count
+    const counts: Record<string, { user_id:string; nickname:string; count:number; amount:number }> = {};
+    approved.forEach((c:any)=>{
+      const key = c.submitted_by;
+      counts[key] = counts[key] || { user_id: key, nickname: c.submittedBy?.nickname || key, count: 0, amount: 0 };
+      counts[key].count += 1;
+      counts[key].amount += (c.amount || 0);
+    });
+    const ranking = Object.values(counts).sort((a,b)=> b.count - a.count).slice(0, 100);
+    return res.json({ goal, totalApproved, contributions, ranking });
+  }
+
+  // USER daily: list all active users with today's status
+  const users = await prisma.user.findMany({ where: { status: 'ACTIVE' }, select: { id: true, nickname: true } });
+  const today = new Date();
+  const dayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const subs = await prisma.goalSubmission.findMany({ where: { goal_id: id, created_at: { gte: dayStart } }, orderBy: { created_at: 'desc' } });
+  const byUser: Record<string, string> = {};
+  subs.forEach((s:any)=>{ if(!(s.submitted_by in byUser)) byUser[s.submitted_by] = s.status; });
+  const items = users.map(u => ({ user_id: u.id, nickname: u.nickname, todayStatus: (byUser[u.id] as any) || null }));
+  return res.json({ goal, users: items });
 });
 
 export default router;

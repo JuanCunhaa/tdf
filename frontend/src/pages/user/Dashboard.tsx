@@ -8,11 +8,13 @@ export default function UserDashboard(){
   const [tasks, setTasks] = useState<any[]>([]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [sending, setSending] = useState(false);
+  const [goals, setGoals] = useState<any[]>([]);
 
   async function loadAll(){
     api('/notifications', {}, token!).then(d=>setNotifs(d.notifications||[])).catch(()=>{});
     api('/submissions/mine', {}, token!).then(d=>setSubs(d.submissions||[])).catch(()=>{});
     api('/assignments/my', {}, token!).then(d=>setTasks(d.items||[])).catch(()=>{});
+    api('/goals?status=ACTIVE', {}, token!).then(d=>setGoals(d.goals||[])).catch(()=>{});
   }
   useEffect(()=>{ loadAll(); },[token]);
 
@@ -29,6 +31,43 @@ export default function UserDashboard(){
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <h1 className="text-3xl">Bem-vindo, {nickname}</h1>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="card">
+          <h2 className="text-xl mb-2">Sua Meta</h2>
+          {goals.filter((g:any)=> g.scope==='USER' && g.is_daily).length === 0 && (
+            <div className="text-slate-400">Nenhuma meta diaria ativa.</div>
+          )}
+          {goals.filter((g:any)=> g.scope==='USER' && g.is_daily).map((g:any)=> (
+            <div key={g.id} className="border-t border-slate-700 pt-2 mt-2">
+              <div className="font-semibold">{g.title}</div>
+              <div className="text-sm text-slate-300">{g.description}</div>
+              <div className="mt-2 text-sm">Status hoje: <span className="text-neon-500">{g.todayStatus || 'NENHUM'}</span></div>
+              <a className="btn mt-2 inline-block" href="/app/goals">Enviar comprovação</a>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <h2 className="text-xl mb-2">Meta do Clan</h2>
+          {goals.filter((g:any)=> g.scope==='CLAN').length === 0 && (
+            <div className="text-slate-400">Nenhuma meta do clã ativa.</div>
+          )}
+          {goals.filter((g:any)=> g.scope==='CLAN').map((g:any)=> (
+            <div key={g.id} className="border-t border-slate-700 pt-2 mt-2">
+              <div className="font-semibold">{g.title}</div>
+              <div className="text-sm text-slate-300">{g.description}</div>
+              {g.target_amount != null && (
+                <div className="mt-2">
+                  <div className="h-2 bg-slate-700 rounded">
+                    <div className="h-2 bg-neon-600 rounded" style={{ width: `${Math.min(100, Math.floor(((g.progress?.clan||0) / g.target_amount) * 100))}%` }}></div>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">{g.progress?.clan || 0} / {g.target_amount} {g.unit || ''}</div>
+                </div>
+              )}
+              <a className="btn mt-2 inline-block" href="/app/goals">Contribuir</a>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card">
           <h2 className="text-xl mb-2">Notificações</h2>
@@ -94,4 +133,3 @@ function translateStatus(s:string){
     default: return s;
   }
 }
-

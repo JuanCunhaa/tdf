@@ -179,6 +179,7 @@ model Goal {
   ends_at      DateTime?    @db.Timestamptz(6)
   visibility   GoalVisibility @default(CLAN)
   scope        GoalScope    @default(USER)
+  is_daily     Boolean      @default(false)
   status       GoalStatus   @default(ACTIVE)
   created_by   String       @db.Uuid
   created_at   DateTime     @default(now()) @db.Timestamptz(6)
@@ -293,6 +294,8 @@ model UserStats {
   submissions_made Int      @default(0)
   rank_points      Int      @default(0)
   playtime_hours   Int      @default(0)
+  daily_goals_points Int   @default(0)
+  clan_contrib_approved_count Int @default(0)
 
   user             User     @relation(fields: [user_id], references: [id])
 
