@@ -37,7 +37,7 @@ router.post('/application/:id', upload.single('file'), async (req, res) => {
 });
 
 // Admin upload avatar for a specific user
-router.post('/user/:id/avatar', requireAuth, requireRole('ADMIN', 'LEADER'), upload.single('file'), async (req, res) => {
+router.post('/user/:id/avatar', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), upload.single('file'), async (req, res) => {
   const targetId = req.params.id;
   const f = req.file!;
   // optional: remove prior avatars or keep history

@@ -8,7 +8,7 @@ import { logAudit } from '../../services/audit';
 
 const router = Router();
 
-router.get('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) => {
+router.get('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
   const role = (req.query.role as string) || undefined;
   const status = (req.query.status as string) || undefined;
   const users = await prisma.user.findMany({
@@ -69,7 +69,7 @@ router.patch('/:id/status', requireAuth, requireRole('LEADER'), async (req, res)
   res.json({ id: u.id, status: u.status });
 });
 
-router.post('/:id/reset-password', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) => {
+router.post('/:id/reset-password', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
   const temp = generateTempPassword();
   const password_hash = await hashPassword(temp);
   await prisma.user.update({ where: { id: req.params.id }, data: { password_hash, must_change_password: true } });
@@ -77,7 +77,7 @@ router.post('/:id/reset-password', requireAuth, requireRole('ADMIN', 'LEADER'), 
   res.json({ ok: true, temporaryPassword: temp });
 });
 
-router.get('/export.csv', requireAuth, requireRole('ADMIN', 'LEADER'), async (_req, res) => {
+router.get('/export.csv', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (_req, res) => {
   const users = await prisma.user.findMany({ orderBy: { created_at: 'desc' } });
   const header = 'id,nickname,discord_tag,email,role,status,joined_at,created_at\n';
   const rows = users
