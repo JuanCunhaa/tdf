@@ -14,7 +14,24 @@ router.get('/', requireAuth, async (req, res) => {
     where: { status: status as any, visibility: visibility as any, type: type as any },
     orderBy: { created_at: 'desc' },
   });
-  res.json({ goals });
+  const userId = (req as any).user.sub as string;
+  const goalIds = goals.filter((g:any)=> g.target_amount != null).map((g:any)=> g.id);
+  let clanSums: Record<string, number> = {};
+  let mySums: Record<string, number> = {};
+  if (goalIds.length) {
+    const aggClan = await prisma.goalSubmission.groupBy({ by: ['goal_id'], where: { goal_id: { in: goalIds }, status: 'APPROVED' }, _sum: { amount: true } });
+    aggClan.forEach((a:any) => { clanSums[a.goal_id] = (a._sum.amount || 0); });
+    const aggMine = await prisma.goalSubmission.groupBy({ by: ['goal_id'], where: { goal_id: { in: goalIds }, status: 'APPROVED', submitted_by: userId }, _sum: { amount: true } });
+    aggMine.forEach((a:any) => { mySums[a.goal_id] = (a._sum.amount || 0); });
+  }
+  const withProgress = goals.map((g:any) => {
+    const clan = g.target_amount != null ? (clanSums[g.id] || 0) : null;
+    const mine = g.target_amount != null ? (mySums[g.id] || 0) : null;
+    const clanComplete = g.target_amount != null ? (clan! >= g.target_amount) : false;
+    const mineComplete = g.target_amount != null ? (mine! >= g.target_amount) : false;
+    return { ...g, progress: { clan, mine, clanComplete, mineComplete } };
+  });
+  res.json({ goals: withProgress });
 });
 
 router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
@@ -27,6 +44,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (re
     starts_at: z.string().datetime().optional(),
     ends_at: z.string().datetime().optional(),
     visibility: z.enum(['PUBLIC', 'CLAN']).default('CLAN'),
+    scope: z.enum(['USER','CLAN']).default('USER'),
   });
   const body = schema.parse(req.body);
   const userId = (req as any).user.sub as string;
@@ -53,6 +71,7 @@ router.patch('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async
     starts_at: z.string().datetime().nullable().optional(),
     ends_at: z.string().datetime().nullable().optional(),
     visibility: z.enum(['PUBLIC', 'CLAN']).optional(),
+    scope: z.enum(['USER','CLAN']).optional(),
     status: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']).optional(),
   });
   const body = schema.parse(req.body);

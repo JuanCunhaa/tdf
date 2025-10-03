@@ -4,13 +4,13 @@ import { api, useAuth } from '../../store/auth';
 export default function AdminGoals(){
   const { token } = useAuth();
   const [goals, setGoals] = useState<any[]>([]);
-  const [form, setForm] = useState<any>({ title:'', description:'', type:'OTHER', target_amount:'', unit:'', visibility:'CLAN' });
+  const [form, setForm] = useState<any>({ title:'', description:'', type:'OTHER', target_amount:'', unit:'', visibility:'CLAN', scope:'USER' });
   const [msg, setMsg] = useState<string|null>(null);
 
   async function load(){ const d = await api('/goals?status=ACTIVE', {}, token!); setGoals(d.goals||[]); }
   useEffect(()=>{ load(); },[token]);
 
-  async function create(){ await api('/goals', { method:'POST', body: JSON.stringify({ ...form, target_amount: form.target_amount? Number(form.target_amount): undefined }) }, token!); setForm({ title:'', description:'', type:'OTHER', target_amount:'', unit:'', visibility:'CLAN' }); setMsg('Meta criada.'); load(); setTimeout(()=>setMsg(null), 1000); }
+  async function create(){ await api('/goals', { method:'POST', body: JSON.stringify({ ...form, target_amount: form.target_amount? Number(form.target_amount): undefined }) }, token!); setForm({ title:'', description:'', type:'OTHER', target_amount:'', unit:'', visibility:'CLAN', scope:'USER' }); setMsg('Meta criada.'); load(); setTimeout(()=>setMsg(null), 1000); }
   async function archive(id:string){ await api(`/goals/${id}`, { method:'PATCH', body: JSON.stringify({ status:'ARCHIVED' }) }, token!); load(); }
 
   return (
@@ -26,6 +26,7 @@ export default function AdminGoals(){
           <Input label="Target (opcional)" value={form.target_amount} onChange={(v)=>setForm({...form,target_amount:v})} type="number" />
           <Input label="Unidade (opcional)" value={form.unit} onChange={(v)=>setForm({...form,unit:v})} />
           <Select label="Visibilidade" value={form.visibility} onChange={(v)=>setForm({...form,visibility:v})} options={["PUBLIC","CLAN"]} />
+          <Select label="Escopo" value={form.scope} onChange={(v)=>setForm({...form,scope:v})} options={["USER","CLAN"]} />
           <button className="btn" onClick={create}>Criar</button>
         </div>
         <div className="card">

@@ -41,6 +41,15 @@ export default function UserGoals(){
                   <div>
                     <div className="font-semibold">{g.title}</div>
                     <div className="text-sm text-stone-300">{g.description}</div>
+                    {g.target_amount != null && (
+                      <div className="text-xs text-slate-400 mt-1">
+                        {g.scope === 'CLAN' ? (
+                          <>Progresso do clã: {g.progress?.clan || 0} / {g.target_amount} {g.unit || ''} {g.progress?.clanComplete ? '✅' : ''}</>
+                        ) : (
+                          <>Seu progresso: {g.progress?.mine || 0} / {g.target_amount} {g.unit || ''} {g.progress?.mineComplete ? '✅' : ''}</>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <button className="btn" onClick={()=>setSelected(g)}>Concluir meta</button>
                 </div>

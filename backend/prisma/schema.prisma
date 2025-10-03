@@ -47,6 +47,11 @@ enum GoalStatus {
   ARCHIVED
 }
 
+enum GoalScope {
+  USER
+  CLAN
+}
+
 enum SubmissionStatus {
   PENDING
   APPROVED
@@ -151,6 +156,7 @@ model Goal {
   starts_at    DateTime?    @db.Timestamptz(6)
   ends_at      DateTime?    @db.Timestamptz(6)
   visibility   GoalVisibility @default(CLAN)
+  scope        GoalScope    @default(USER)
   status       GoalStatus   @default(ACTIVE)
   created_by   String       @db.Uuid
   created_at   DateTime     @default(now()) @db.Timestamptz(6)
