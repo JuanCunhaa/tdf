@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../prisma';
+import { ApplicationStatus } from '@prisma/client';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { generateTempPassword, hashPassword } from '../../utils/password';
 import { logAudit } from '../../services/audit';
@@ -35,7 +36,10 @@ router.post('/', async (req, res) => {
 
 // List (admin)
 router.get('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
-  const status = (req.query.status as string) || 'PENDING';
+  const statusParam = req.query.status as string | undefined;
+  const status: ApplicationStatus = (statusParam && ['PENDING','ACCEPTED','REJECTED'].includes(statusParam))
+    ? (statusParam as ApplicationStatus)
+    : 'PENDING';
   const list = await prisma.recruitmentApplication.findMany({
     where: { status },
     select: { id: true, nickname: true, discord_tag: true, created_at: true, status: true },
@@ -98,4 +102,3 @@ router.post('/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
 });
 
 export default router;
-

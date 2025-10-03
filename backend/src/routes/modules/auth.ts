@@ -13,7 +13,7 @@ function signToken(user: { id: string; role: string; nickname: string; must_chan
   return jwt.sign(
     { sub: user.id, role: user.role, nickname: user.nickname, mustChangePassword: user.must_change_password },
     env.JWT_SECRET,
-    { expiresIn: env.JWT_EXPIRES_IN }
+    { expiresIn: env.JWT_EXPIRES_IN as any }
   );
 }
 
@@ -89,4 +89,3 @@ router.post('/reset-password', async (req, res) => {
 });
 
 export default router;
-
