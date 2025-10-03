@@ -114,7 +114,7 @@ router.get('/:id/detail', requireAuth, requireRole('ADMIN','ELITE','LEADER'), as
     const contributions = await prisma.goalSubmission.findMany({
       where: { goal_id: id },
       orderBy: { created_at: 'desc' },
-      include: { submittedBy: { select: { id: true, nickname: true } } },
+      include: { submittedBy: { select: { id: true, nickname: true } }, uploads: true },
     });
     const approved = contributions.filter((c:any)=> c.status === 'APPROVED');
     const totalApproved = approved.reduce((acc:number, c:any)=> acc + (c.amount || 0), 0);
@@ -130,15 +130,15 @@ router.get('/:id/detail', requireAuth, requireRole('ADMIN','ELITE','LEADER'), as
     return res.json({ goal, totalApproved, contributions, ranking });
   }
 
-  // USER daily: list all active users with today's status
+  // USER daily: list all active users with today's status + today's submissions
   const users = await prisma.user.findMany({ where: { status: 'ACTIVE' }, select: { id: true, nickname: true } });
   const today = new Date();
   const dayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  const subs = await prisma.goalSubmission.findMany({ where: { goal_id: id, created_at: { gte: dayStart } }, orderBy: { created_at: 'desc' } });
+  const subs = await prisma.goalSubmission.findMany({ where: { goal_id: id, created_at: { gte: dayStart } }, orderBy: { created_at: 'desc' }, include: { submittedBy: { select: { id: true, nickname: true } }, uploads: true } });
   const byUser: Record<string, string> = {};
   subs.forEach((s:any)=>{ if(!(s.submitted_by in byUser)) byUser[s.submitted_by] = s.status; });
   const items = users.map(u => ({ user_id: u.id, nickname: u.nickname, todayStatus: (byUser[u.id] as any) || null }));
-  return res.json({ goal, users: items });
+  return res.json({ goal, users: items, submissions: subs });
 });
 
 export default router;

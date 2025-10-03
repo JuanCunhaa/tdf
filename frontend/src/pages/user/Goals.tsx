@@ -5,7 +5,7 @@ export default function UserGoals(){
   const { token } = useAuth();
   const [goals, setGoals] = useState<any[]>([]);
   const [selected, setSelected] = useState<any|null>(null);
-  const [files, setFiles] = useState<FileList| null>(null);
+  const [evidenceUrl, setEvidenceUrl] = useState('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [msg, setMsg] = useState<string|null>(null);
@@ -21,10 +21,10 @@ export default function UserGoals(){
       fd.append('goal_id', selected.id);
       if(amount) fd.append('amount', amount);
       if(note) fd.append('note', note);
-      if(files) Array.from(files).forEach(f=> fd.append('files', f));
+      if(evidenceUrl) fd.append('evidence_url', evidenceUrl);
       const res = await fetch(`${API_URL}/submissions`, { method:'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
       if(!res.ok) throw new Error((await res.json()).error || 'Erro');
-      setMsg('Enviado! Aguarde revisão.'); setSelected(null); setFiles(null); setAmount(''); setNote('');
+      setMsg('Enviado! Aguarde revisão.'); setSelected(null); setEvidenceUrl(''); setAmount(''); setNote('');
     }catch(e:any){ setErr(e.message); }
   }
 
@@ -44,9 +44,9 @@ export default function UserGoals(){
                     {g.target_amount != null && (
                       <div className="text-xs text-slate-400 mt-1">
                         {g.scope === 'CLAN' ? (
-                          <>Progresso do clã: {g.progress?.clan || 0} / {g.target_amount} {g.unit || ''} {g.progress?.clanComplete ? '✅' : ''}</>
+                          <>Progresso do clã: {g.progress?.clan || 0} / {g.target_amount} {g.unit || ''} {g.progress?.clanComplete ? 'ok' : ''}</>
                         ) : (
-                          <>Seu progresso: {g.progress?.mine || 0} / {g.target_amount} {g.unit || ''} {g.progress?.mineComplete ? '✅' : ''}</>
+                          <>Seu progresso: {g.progress?.mine || 0} / {g.target_amount} {g.unit || ''} {g.progress?.mineComplete ? 'ok' : ''}</>
                         )}
                       </div>
                     )}
@@ -67,10 +67,9 @@ export default function UserGoals(){
               <div className="text-sm">Meta: <span className="font-semibold">{selected.title}</span></div>
               {selected.target_amount && <label className="block text-sm">Quantia atingida<input className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={amount} onChange={e=>setAmount(e.target.value)} type="number" /></label>}
               <label className="block text-sm">Descrição<textarea className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={note} onChange={e=>setNote(e.target.value)} /></label>
-              <div>
-                <label className="block text-sm mb-1">Evidências (imagens)</label>
-                <input type="file" multiple accept="image/*" onChange={(e)=>setFiles(e.target.files)} />
-              </div>
+              <label className="block text-sm">Link da print (obrigatório)
+                <input className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" type="url" placeholder="https://..." value={evidenceUrl} onChange={e=>setEvidenceUrl(e.target.value)} required />
+              </label>
               <button className="btn" onClick={submit}>Enviar</button>
             </div>
           )}
@@ -79,3 +78,4 @@ export default function UserGoals(){
     </div>
   );
 }
+

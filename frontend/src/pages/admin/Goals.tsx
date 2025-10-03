@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, useAuth } from '../../store/auth';
+import { api, useAuth, API_URL } from '../../store/auth';
 
 export default function AdminGoals(){
   const { token } = useAuth();
@@ -71,10 +71,13 @@ export default function AdminGoals(){
                   <div>
                     <div className="font-semibold mb-1">Contribuicoes</div>
                     <ul className="space-y-1 max-h-80 overflow-auto">
-                      {(detail.contributions||[]).map((c:any)=> (
+                      {(detail.contributions||[]).map((c:any)=> {
+                        const fileName = c.uploads && c.uploads.length ? (c.uploads[0].storage_path.split(/[/\\\\]/).pop() || '') : '';
+                        const link = c.evidence_url || (fileName ? `/uploads/${fileName}` : null);
+                        return (
                         <li key={c.id} className="border-b border-slate-700 py-1">
                           <div className="flex justify-between items-center">
-                            <span>[{c.status}] {c.submittedBy?.nickname} - {c.amount ?? '-'} {selected.unit||''}</span>
+                            <span>[{c.status}] {c.submittedBy?.nickname} - {c.amount ?? '-'} {selected.unit||''} {link ? (<a className="text-neon-500 underline ml-2" target="_blank" href={link}>ver print</a>) : null}</span>
                             <span className="text-xs text-slate-500">{new Date(c.created_at).toLocaleString()}</span>
                           </div>
                           <div className="mt-1 space-x-2">
@@ -87,20 +90,46 @@ export default function AdminGoals(){
                             <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta contribuição?')){ await fetch(`${API_URL}/submissions/${c.id}`, { method:'DELETE', headers: { Authorization: `Bearer ${token}` } }); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
                           </div>
                         </li>
-                      ))}
+                        );
+                      })}
                     </ul>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="font-semibold mb-1">Progresso (hoje)</div>
-                  <ul className="grid md:grid-cols-3 gap-2 max-h-96 overflow-auto">
+                  <ul className="grid md:grid-cols-3 gap-2 max-h-60 overflow-auto">
                     {(detail.users||[]).map((u:any)=> (
                       <li key={u.user_id} className="p-2 rounded border border-slate-700 bg-slate-800/50 flex items-center justify-between">
                         <span>{u.nickname}</span>
                         <span className="text-xs px-2 py-1 rounded bg-slate-700">{u.todayStatus || 'NENHUM'}</span>
                       </li>
                     ))}
+                  </ul>
+                  <div className="font-semibold mt-4 mb-1">Submissões (hoje)</div>
+                  <ul className="space-y-1 max-h-80 overflow-auto">
+                    {(detail.submissions||[]).map((c:any)=> {
+                      const fileName = c.uploads && c.uploads.length ? (c.uploads[0].storage_path.split(/[/\\\\]/).pop() || '') : '';
+                      const link = c.evidence_url || (fileName ? `/uploads/${fileName}` : null);
+                      return (
+                        <li key={c.id} className="border-b border-slate-700 py-1">
+                          <div className="flex justify-between items-center">
+                            <span>[{c.status}] {c.submittedBy?.nickname} - {c.amount ?? '-'} {selected.unit||''} {link ? (<a className="text-neon-500 underline ml-2" target="_blank" href={link}>ver print</a>) : null}</span>
+                            <span className="text-xs text-slate-500">{new Date(c.created_at).toLocaleString()}</span>
+                          </div>
+                          <div className="mt-1 space-x-2">
+                            {c.status === 'PENDING' && (
+                              <>
+                                <button className="btn" onClick={async()=>{ await api(`/submissions/${c.id}/approve`, { method:'POST' }, token!); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); }}>Aprovar</button>
+                                <button className="btn bg-red-700 hover:bg-red-600" onClick={async()=>{ const reason = prompt('Motivo da recusa (opcional):')||''; await api(`/submissions/${c.id}/reject`, { method:'POST', body: JSON.stringify({ reason }) }, token!); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); }}>Recusar</button>
+                              </>
+                            )}
+                            <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta submissão?')){ await fetch(`${API_URL}/submissions/${c.id}`, { method:'DELETE', headers: { Authorization: `Bearer ${token}` } }); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                    {(!detail.submissions || !detail.submissions.length) && <li className="text-slate-400">Sem submissões hoje.</li>}
                   </ul>
                 </>
               )}

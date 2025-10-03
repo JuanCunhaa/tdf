@@ -32,10 +32,10 @@ const upload = multer({ storage, limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 
 
 // Create submission by user
 router.post('/', requireAuth, upload.array('files', 5), async (req, res) => {
-  const schema = z.object({ goal_id: z.string().uuid(), amount: z.coerce.number().int().optional(), note: z.string().optional() });
+  const schema = z.object({ goal_id: z.string().uuid(), amount: z.coerce.number().int().optional(), note: z.string().optional(), evidence_url: z.string().url().optional() });
   const body = schema.parse(req.body);
   const userId = (req as any).user.sub as string;
-  const sub = await prisma.goalSubmission.create({ data: { goal_id: body.goal_id, submitted_by: userId, amount: body.amount ?? null, note: sanitizeText(body.note || null, 1000) } });
+  const sub = await prisma.goalSubmission.create({ data: { goal_id: body.goal_id, submitted_by: userId, amount: body.amount ?? null, note: sanitizeText(body.note || null, 1000), evidence_url: body.evidence_url || null } });
 
   const files = (req.files as Express.Multer.File[]) || [];
   if (files.length) {
@@ -78,7 +78,7 @@ router.post('/:id/approve', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER')
   const sub = await prisma.goalSubmission.findUnique({ where: { id: req.params.id } });
   if (!sub) return res.status(404).json({ error: 'Submission not found' });
   const evidenceCount = await prisma.upload.count({ where: { goal_submission_id: sub.id } });
-  if (evidenceCount === 0) return res.status(400).json({ error: 'Evidence required to approve' });
+  if (evidenceCount === 0 && !sub.evidence_url) return res.status(400).json({ error: 'Evidence required to approve' });
   if (sub.status !== 'PENDING') return res.status(400).json({ error: 'Already reviewed' });
   const goal = await prisma.goal.findUnique({ where: { id: sub.goal_id } });
   if (!goal) return res.status(404).json({ error: 'Goal not found' });
@@ -110,7 +110,11 @@ router.post('/:id/approve', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER')
   });
 
   await logAudit({ actorId: reviewerId, action: 'SUBMISSION_APPROVED', entity: 'GOAL_SUBMISSION', entityId: sub.id });
-  await notify(sub.submitted_by, 'GOAL_STATUS', 'Meta aprovada', 'Sua contribuicao de meta foi aprovada.');
+  const unit = (goal as any).unit ? ` ${(goal as any).unit}` : '';
+  const approvedMsg = (sub.amount != null)
+    ? `Sua contribuição de ${sub.amount}${unit} foi aprovada.`
+    : 'Sua comprovação de meta foi aprovada.';
+  await notify(sub.submitted_by, 'GOAL_STATUS', 'Meta aprovada', approvedMsg);
   res.json({ ok: true });
 });
 
@@ -123,6 +127,7 @@ router.post('/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
   if (!sub) return res.status(404).json({ error: 'Submission not found' });
   if (sub.status !== 'PENDING') return res.status(400).json({ error: 'Already reviewed' });
   await prisma.goalSubmission.update({ where: { id: sub.id }, data: { status: 'REJECTED', reviewed_by: reviewerId, reviewed_at: new Date() } });
+  await prisma.goalSubmission.update({ where: { id: sub.id }, data: { rejection_reason: reason || null } });
   await logAudit({ actorId: reviewerId, action: 'SUBMISSION_REJECTED', entity: 'GOAL_SUBMISSION', entityId: sub.id, metadata: { reason } });
   const msg = reason && reason.trim() ? `Sua contribuicao foi recusada. Motivo: ${reason.trim()}` : 'Sua contribuicao foi recusada.';
   await notify(sub.submitted_by, 'GOAL_STATUS', 'Meta rejeitada', msg);
