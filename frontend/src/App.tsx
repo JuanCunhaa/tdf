@@ -31,6 +31,12 @@ function AdminOnly({ children }: { children: JSX.Element }) {
   return children;
 }
 
+function AuthOnly({ children }: { children: JSX.Element }) {
+  const { token } = useAuth();
+  if (!token) return <Navigate to="/login" replace />;
+  return children;
+}
+
 function Layout({ children }: { children: React.ReactNode }) {
   const { token, role, nickname, logout } = useAuth();
   return (
@@ -72,7 +78,7 @@ export default function App() {
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/recruitment" element={<Recruitment />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/change-password" element={<Protected><ChangePassword /></Protected>} />
+          <Route path="/change-password" element={<AuthOnly><ChangePassword /></AuthOnly>} />
 
           <Route path="/app" element={<Protected><UserDashboard /></Protected>} />
           <Route path="/app/goals" element={<Protected><UserGoals /></Protected>} />

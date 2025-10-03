@@ -13,11 +13,14 @@ export default function Login(){
       if(mode==='user'){
         const r = await api('/auth/login-user', { method:'POST', body: JSON.stringify({ nickname: form.nickname, password: form.password }) });
         login({ token: r.token, role: r.role, nickname: r.nickname, mustChangePassword: r.mustChangePassword });
+        if (r.mustChangePassword) { location.href = '/change-password'; return; }
+        location.href = '/app';
       }else{
         const r = await api('/auth/login-admin', { method:'POST', body: JSON.stringify({ email: form.email, password: form.password }) });
         login({ token: r.token, role: r.role, nickname: r.nickname, mustChangePassword: r.mustChangePassword });
+        if (r.mustChangePassword) { location.href = '/change-password'; return; }
+        location.href = '/admin';
       }
-      location.href = '/';
     }catch(e:any){ setError(e.message); }
   }
 
