@@ -36,12 +36,18 @@ export default function AdminForms(){
         <div className="card">
           <h2 className="text-xl mb-2">Detalhes</h2>
           {error && <div className="text-red-400">{error}</div>}
-          {!view && <div className="text-stone-400">Selecione um formulário.</div>}
+          {!view && <div className="text-slate-400">Selecione um formulário.</div>}
           {view && (
-            <div className="space-y-1 text-sm">
-              {Object.entries(view).map(([k,v])=> (
-                <div key={k}><span className="text-stone-400">{k}:</span> {String(v)}</div>
-              ))}
+            <div className="space-y-3 text-sm">
+              <Row label="Nick">{view.nickname}</Row>
+              <Row label="Nome real">{view.real_name}</Row>
+              <Row label="Discord">{view.discord_tag}</Row>
+              <Row label="Idade">{view.age}</Row>
+              <Row label="País">{view.country}</Row>
+              <Row label="Área de destaque">{view.focus_area}</Row>
+              {view.prior_clans && <Row label="Clãs anteriores">{view.prior_clans}</Row>}
+              <Row label="Motivação"><div className="whitespace-pre-wrap">{view.motivation}</div></Row>
+              {view.portfolio_links && <Row label="Links">{view.portfolio_links}</Row>}
               <div className="flex gap-2 mt-3">
                 <button className="btn" onClick={()=>accept(view.id)}>Aceitar</button>
                 <button className="btn bg-red-700 hover:bg-red-600" onClick={()=>reject(view.id)}>Rejeitar</button>
@@ -54,3 +60,11 @@ export default function AdminForms(){
   );
 }
 
+function Row({label, children}:{label:string, children:any}){
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      <div className="text-slate-400">{label}</div>
+      <div className="col-span-2">{children}</div>
+    </div>
+  );
+}

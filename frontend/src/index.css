@@ -24,3 +24,12 @@ body {
 }
 
 .title-pixel { @apply font-pixel text-neon-500 drop-shadow; }
+
+/* Unified inputs */
+input[type="text"], input[type="email"], input[type="number"], input[type="password"], textarea, select {
+  @apply w-full mt-1 px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:outline-none focus:border-neon-600;
+}
+
+.select-input {
+  @apply bg-slate-800 border border-slate-700 rounded px-3 py-2 focus:border-neon-600;
+}

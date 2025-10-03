@@ -22,6 +22,29 @@ router.get('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) =>
   res.json({ users });
 });
 
+router.post('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) => {
+  const schema = z.object({
+    nickname: z.string().min(3),
+    discord_tag: z.string().min(2),
+    email: z.string().email().nullable().optional(),
+    role: z.enum(['LEADER','ELITE','ADMIN','MEMBER']).default('MEMBER'),
+  });
+  const body = schema.parse(req.body);
+  const temp = generateTempPassword();
+  const password_hash = await hashPassword(temp);
+  const created = await prisma.user.create({ data: {
+    nickname: body.nickname,
+    discord_tag: body.discord_tag,
+    email: body.email ?? null,
+    password_hash,
+    role: body.role,
+    status: 'ACTIVE',
+    must_change_password: true,
+    joined_at: new Date(),
+  }});
+  res.status(201).json({ user: { id: created.id, nickname: created.nickname, role: created.role }, temporaryPassword: temp });
+});
+
 router.patch('/:id/role', requireAuth, requireRole('LEADER'), async (req, res) => {
   const schema = z.object({ role: z.enum(['LEADER', 'ELITE', 'ADMIN', 'MEMBER']) });
   const { role } = schema.parse(req.body);

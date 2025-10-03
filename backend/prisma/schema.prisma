@@ -116,19 +116,15 @@ model User {
 model RecruitmentApplication {
   id                   String            @id @default(uuid()) @db.Uuid
   nickname             String
+  real_name            String
   discord_tag          String
   age                  Int
-  region               String
-  mc_experience        String
-  highest_rank         String
-  preferences          String            // CSV/JSON
-  weekly_hours         Int
-  prior_clan           Boolean
-  why_left_prior_clan  String?
-  why_join_us          String
+  country              String
+  focus_area           String            // MINERACAO | FARM | SAQUE
+  prior_clans          String?
+  motivation           String
   accepts_rules        Boolean
   portfolio_links      String?
-  attention_word       String
   status               ApplicationStatus @default(PENDING)
   reviewed_by          String?           @db.Uuid
   reviewed_at          DateTime?         @db.Timestamptz(6)

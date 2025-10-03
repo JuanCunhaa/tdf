@@ -14,6 +14,7 @@ import AdminMembers from './pages/admin/Members';
 import AdminGoals from './pages/admin/Goals';
 import AdminSubmissions from './pages/admin/Submissions';
 import AdminLogs from './pages/admin/Logs';
+import AdminCreateUser from './pages/admin/CreateUser';
 import Downloads from './pages/Downloads';
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="/admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
           <Route path="/admin/forms" element={<AdminOnly><AdminForms /></AdminOnly>} />
           <Route path="/admin/members" element={<AdminOnly><AdminMembers /></AdminOnly>} />
+          <Route path="/admin/create-user" element={<AdminOnly><AdminCreateUser /></AdminOnly>} />
           <Route path="/admin/goals" element={<AdminOnly><AdminGoals /></AdminOnly>} />
           <Route path="/admin/submissions" element={<AdminOnly><AdminSubmissions /></AdminOnly>} />
           <Route path="/admin/logs" element={<AdminOnly><AdminLogs /></AdminOnly>} />

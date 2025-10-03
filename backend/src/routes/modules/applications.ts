@@ -8,42 +8,61 @@ import { logAudit } from '../../services/audit';
 import { notify } from '../../services/notifications';
 import { sendDiscordMessage } from '../../services/discord';
 import { sanitizeText } from '../../utils/sanitize';
+import jwt from 'jsonwebtoken';
+import { env } from '../../config/env';
 
 const router = Router();
 
 const applicationSchema = z.object({
   nickname: z.string().min(3),
+  real_name: z.string().min(2),
   discord_tag: z.string().min(2),
-  age: z.coerce.number().int().min(10),
-  region: z.string().min(2),
-  mc_experience: z.string().min(2),
-  highest_rank: z.string().min(1),
-  preferences: z.string().min(1),
-  weekly_hours: z.coerce.number().int().min(0),
-  prior_clan: z.boolean(),
-  why_left_prior_clan: z.string().optional(),
-  why_join_us: z.string().min(5),
+  age: z.coerce.number().int().min(10).max(120),
+  country: z.string().min(2),
+  focus_area: z.enum(['MINERACAO','FARM','SAQUE']),
+  prior_clans: z.string().optional(),
+  motivation: z.string().min(5),
   accepts_rules: z.boolean().refine((v) => v === true, 'Deve aceitar as regras'),
   portfolio_links: z.string().optional(),
-  attention_word: z.string().refine((v) => v.trim().toUpperCase() === 'RANKUP', 'Palavra de atenção inválida'),
+  challenge_input: z.string().min(3),
+  challenge_token: z.string().min(10),
 });
 
 // Public submission
 router.post('/', async (req, res) => {
   const data = applicationSchema.parse(req.body);
+  try {
+    const decoded = jwt.verify(data.challenge_token, env.JWT_SECRET) as any;
+    const code = String(decoded.code || '').toUpperCase();
+    if (code !== data.challenge_input.trim().toUpperCase()) {
+      return res.status(400).json({ error: 'Desafio inválido' });
+    }
+  } catch {
+    return res.status(400).json({ error: 'Desafio inválido/expirado' });
+  }
+
   const app = await prisma.recruitmentApplication.create({ data: {
-    ...data,
     nickname: sanitizeText(data.nickname, 32)!,
+    real_name: sanitizeText(data.real_name, 64)!,
     discord_tag: sanitizeText(data.discord_tag, 64)!,
-    region: sanitizeText(data.region, 64)!,
-    mc_experience: sanitizeText(data.mc_experience, 500)!,
-    highest_rank: sanitizeText(data.highest_rank, 64)!,
-    preferences: sanitizeText(data.preferences, 100)!,
-    why_left_prior_clan: sanitizeText(data.why_left_prior_clan || null, 500),
-    why_join_us: sanitizeText(data.why_join_us, 500)!,
+    age: data.age,
+    country: sanitizeText(data.country, 64)!,
+    focus_area: sanitizeText(data.focus_area, 16)!,
+    prior_clans: sanitizeText(data.prior_clans || null, 300),
+    motivation: sanitizeText(data.motivation, 800)!,
+    accepts_rules: data.accepts_rules,
     portfolio_links: sanitizeText(data.portfolio_links || null, 500),
   } });
   res.status(201).json({ id: app.id, created_at: app.created_at });
+});
+
+// Challenge endpoint
+router.get('/challenge', async (_req, res) => {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
+  const token = jwt.sign({ code }, env.JWT_SECRET, { expiresIn: '5m' });
+  res.json({ code, token });
 });
 
 // List (admin)
