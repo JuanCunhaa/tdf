@@ -14,15 +14,27 @@ import { env } from '../../config/env';
 const router = Router();
 
 const applicationSchema = z.object({
-  nickname: z.string().min(3),
+  nickname: z
+    .string()
+    .min(3)
+    .max(32)
+    .regex(/^[A-Za-z0-9._-]+$/, 'Nickname inválido'),
   real_name: z.string().min(2),
-  discord_tag: z.string().min(2),
+  discord_tag: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(/^[A-Za-z0-9 ._#\-]+$/, 'Discord inválido'),
   age: z.coerce.number().int().min(10).max(120),
-  country: z.string().min(2),
+  country: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(/^[A-Za-zÀ-ÿ .\-]+$/u, 'País inválido'),
   focus_area: z.enum(['MINERACAO','FARM','SAQUE']),
   prior_clans: z.string().optional(),
   motivation: z.string().min(5),
-  daily_play_hours: z.coerce.number().int().min(0).max(24).optional(),
+  daily_play_hours: z.coerce.number().int().min(1).max(18).optional(),
   accepts_rules: z.boolean().refine((v) => v === true, 'Deve aceitar as regras'),
   portfolio_links: z.string().optional(),
   challenge_input: z.string().min(3),

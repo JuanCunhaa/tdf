@@ -18,7 +18,14 @@ function signToken(user: { id: string; role: string; nickname: string; must_chan
 }
 
 router.post('/login-user', async (req, res) => {
-  const schema = z.object({ nickname: z.string().min(1), password: z.string().min(6) });
+  const schema = z.object({
+    nickname: z
+      .string()
+      .min(3)
+      .max(32)
+      .regex(/^[A-Za-z0-9._-]+$/, 'Nickname inválido'),
+    password: z.string().min(6),
+  });
   const { nickname, password } = schema.parse(req.body);
   const nn = nickname.trim();
   let user = await prisma.user.findUnique({ where: { nickname: nn } });

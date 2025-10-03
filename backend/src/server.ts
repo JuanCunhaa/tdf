@@ -10,6 +10,7 @@ import { env } from './config/env';
 import { errorHandler } from './middleware/error';
 import router from './routes';
 import { ensureSeedAdmin } from './bootstrap';
+import { blockSqlMeta } from './middleware/security';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors({ origin: origins || true }));
 app.use(helmet());
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('dev'));
+app.use(blockSqlMeta);
 
 // Ensure upload dir exists
 if (!fs.existsSync(env.UPLOAD_DIR)) {

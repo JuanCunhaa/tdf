@@ -24,8 +24,16 @@ router.get('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) =>
 
 router.post('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) => {
   const schema = z.object({
-    nickname: z.string().min(3),
-    discord_tag: z.string().min(2),
+    nickname: z
+      .string()
+      .min(3)
+      .max(32)
+      .regex(/^[A-Za-z0-9._-]+$/, 'Nickname inválido'),
+    discord_tag: z
+      .string()
+      .min(2)
+      .max(64)
+      .regex(/^[A-Za-z0-9 ._#\-]+$/, 'Discord inválido'),
     email: z.string().email().nullable().optional(),
     role: z.enum(['LEADER','ELITE','ADMIN','MEMBER']).default('MEMBER'),
   });

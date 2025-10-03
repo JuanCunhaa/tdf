@@ -53,7 +53,7 @@ export default function Recruitment(){
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl mb-4">Recrutamento — Entrar no TDF</h1>
+      <h1 className="text-3xl mb-4">Formulário de Recrutamento - TDF</h1>
       <form className="card space-y-4" onSubmit={submit}>
         {error && <div className="text-red-400">{error}</div>}
         <div className="grid md:grid-cols-2 gap-4">
@@ -64,7 +64,7 @@ export default function Recruitment(){
           <Input label="País" value={form.country} onChange={(v)=>setForm({...form,country:v})} required />
           <Select label="Se destaca em" value={form.focus_area} onChange={(v)=>setForm({...form,focus_area:v})} options={[{label:'Mineração',value:'MINERACAO'},{label:'Farm',value:'FARM'},{label:'Saque',value:'SAQUE'}]} />
           <Input label="Já participou de outros clãs? Quais?" value={form.prior_clans} onChange={(v)=>setForm({...form,prior_clans:v})} />
-          <Input label="Quanto tempo joga por dia (horas)" type="number" value={form.daily_play_hours} onChange={(v)=>setForm({...form,daily_play_hours:v})} />
+          <Input label="Quanto tempo joga por dia (horas)" type="number" value={form.daily_play_hours} onChange={(v)=>setForm({...form,daily_play_hours:v})} min={1} max={18} />
           <label className="block text-sm md:col-span-2">
             <span className="text-slate-300">Por que devemos aceitar você no clã?</span>
             <textarea value={form.motivation} onChange={(e)=>setForm({...form,motivation:e.target.value})}></textarea>
@@ -89,11 +89,11 @@ export default function Recruitment(){
   );
 }
 
-function Input({label, value, onChange, type='text', required=false}:{label:string, value:any, onChange:(v:string)=>void, type?:string, required?:boolean}){
+function Input({label, value, onChange, type='text', required=false, min, max}:{label:string, value:any, onChange:(v:string)=>void, type?:string, required?:boolean, min?:number, max?:number}){
   return (
     <label className="block text-sm">
       <span className="text-slate-300">{label}</span>
-      <input value={value} onChange={e=>onChange((e.target as HTMLInputElement).value)} type={type} required={required} />
+      <input value={value} onChange={e=>onChange((e.target as HTMLInputElement).value)} type={type} required={required} min={min} max={max} />
     </label>
   );
 }
@@ -105,4 +105,3 @@ function Select({label, value, onChange, options}:{label:string, value:string, o
     </label>
   );
 }
-

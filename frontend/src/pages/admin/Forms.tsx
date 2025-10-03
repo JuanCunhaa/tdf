@@ -44,6 +44,7 @@ export default function AdminForms(){
               <Row label="Discord">{view.discord_tag}</Row>
               <Row label="Idade">{view.age}</Row>
               <Row label="País">{view.country}</Row>
+              <Row label="Horas por dia">{view.daily_play_hours ?? '-'}</Row>
               <Row label="Área de destaque">{view.focus_area}</Row>
               {view.prior_clans && <Row label="Clãs anteriores">{view.prior_clans}</Row>}
               <Row label="Motivação"><div className="whitespace-pre-wrap">{view.motivation}</div></Row>
