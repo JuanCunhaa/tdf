@@ -5,14 +5,21 @@ export default function Recruitment(){
   const [form, setForm] = useState<any>({
     nickname:'', real_name:'', discord_tag:'', age:'', country:'', focus_area:'MINERACAO', prior_clans:'', motivation:'', accepts_rules:false, portfolio_links:'', challenge_input:'', challenge_token:''
   });
-  const [files, setFiles] = useState<FileList | null>(null);
+  // anexos removidos
   const [done, setDone] = useState<{id:string}|null>(null);
   const [error, setError] = useState<string|null>(null);
   const [challenge, setChallenge] = useState<string>('');
 
   useEffect(()=>{
-    fetch(`${API_URL}/applications/challenge`).then(r=>r.json()).then(d=>{ setChallenge(d.code); setForm((f:any)=>({...f, challenge_token:d.token})); }).catch(()=>{});
+    refreshChallenge();
   },[]);
+
+  async function refreshChallenge(){
+    try{
+      const d = await fetch(`${API_URL}/applications/challenge`).then(r=>r.json());
+      setChallenge(d.code); setForm((f:any)=>({...f, challenge_token:d.token}));
+    }catch{ setChallenge('??????'); }
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null);
@@ -23,12 +30,6 @@ export default function Recruitment(){
       })});
       if(!res.ok) throw new Error((await res.json()).error || 'Erro');
       const data = await res.json();
-      if(files && files.length){
-        for(const f of Array.from(files)){
-          const fd = new FormData(); fd.append('file', f);
-          await fetch(`${API_URL}/uploads/application/${data.id}`, { method:'POST', body: fd });
-        }
-      }
       setDone({id: data.id});
     }catch(e:any){ setError(e.message); }
   };
@@ -59,17 +60,17 @@ export default function Recruitment(){
           </label>
           <Input label="Links de prints/fotos (opcional)" value={form.portfolio_links} onChange={(v)=>setForm({...form,portfolio_links:v})} />
           <div className="flex items-center gap-2 md:col-span-2 bg-slate-900/50 p-3 rounded border border-slate-700">
-            <input id="rules" type="checkbox" checked={form.accepts_rules} onChange={(e)=>setForm({...form,accepts_rules:e.target.checked})} />
+            <input id="rules" className="checkbox" type="checkbox" checked={form.accepts_rules} onChange={(e)=>setForm({...form,accepts_rules:e.target.checked})} />
             <label htmlFor="rules">Confirmo que li e aceito as regras internas e metas coletivas.</label>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm">Digite a sequência anti‑bot: <b className="text-neon-500">{challenge||'...'}</b></label>
-            <input value={form.challenge_input} onChange={(e)=>setForm({...form,challenge_input:e.target.value})} required />
+            <label className="block text-sm mb-1">Digite a sequência anti‑bot:</label>
+            <div className="flex items-center gap-3">
+              <span className="px-3 py-2 rounded bg-slate-900 border border-slate-700 font-mono tracking-widest text-neon-500">{challenge || '...'}</span>
+              <button type="button" className="btn-outline" onClick={refreshChallenge}>Recarregar</button>
+            </div>
+            <input className="mt-2" placeholder="Digite aqui" value={form.challenge_input} onChange={(e)=>setForm({...form,challenge_input:e.target.value})} required />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Anexos (opcional)</label>
-          <input type="file" multiple accept="image/*" onChange={(e)=>setFiles(e.target.files)} />
         </div>
         <button className="btn">Enviar</button>
       </form>

@@ -130,6 +130,15 @@ model RecruitmentApplication {
   motivation           String?
   accepts_rules        Boolean
   portfolio_links      String?
+  // legacy fields kept to avoid data loss and for compatibility
+  region               String?
+  mc_experience        String?
+  highest_rank         String?
+  preferences          String?
+  weekly_hours         Int?
+  prior_clan           Boolean?
+  why_join_us          String?
+  attention_word       String?
   status               ApplicationStatus @default(PENDING)
   reviewed_by          String?           @db.Uuid
   reviewed_at          DateTime?         @db.Timestamptz(6)

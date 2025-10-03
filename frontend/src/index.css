@@ -31,5 +31,20 @@ input[type="text"], input[type="email"], input[type="number"], input[type="passw
 }
 
 .select-input {
-  @apply bg-slate-800 border border-slate-700 rounded px-3 py-2 focus:border-neon-600;
+  @apply bg-slate-800 border border-slate-700 rounded px-3 py-2 focus:border-neon-600 text-white pr-10;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .6rem center;
+}
+
+.checkbox {
+  @apply w-4 h-4 rounded border border-slate-600 align-middle inline-block mr-2 appearance-none cursor-pointer;
+  background-color: theme('colors.slate.900');
+}
+.checkbox:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%237c3aed' d='M8.143 14.314l-3.9-3.9 1.414-1.415 2.486 2.486 5.6-5.6 1.415 1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
 }
