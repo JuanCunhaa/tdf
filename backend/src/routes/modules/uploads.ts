@@ -5,6 +5,7 @@ import { env } from '../../config/env';
 import mime from 'mime-types';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { prisma } from '../../prisma';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
 
@@ -28,6 +29,7 @@ router.post('/avatar', requireAuth, upload.single('file'), async (req, res) => {
   const f = req.file!;
   const up = await prisma.upload.create({ data: { kind: 'USER_AVATAR', storage_path: f.path, mime_type: f.mimetype, size_bytes: f.size, user_id: userId } });
   res.status(201).json({ upload: up, url: `/uploads/${path.basename(f.path)}` });
+  await logAudit({ actorId: userId, action: 'USER_AVATAR_UPLOADED', entity: 'UPLOAD', entityId: up.id });
 });
 
 router.post('/application/:id', upload.single('file'), async (req, res) => {
@@ -43,6 +45,7 @@ router.post('/user/:id/avatar', requireAuth, requireRole('ADMIN', 'ELITE', 'LEAD
   // optional: remove prior avatars or keep history
   const up = await prisma.upload.create({ data: { kind: 'USER_AVATAR', storage_path: f.path, mime_type: f.mimetype, size_bytes: f.size, user_id: targetId } });
   res.status(201).json({ upload: up, url: `/uploads/${path.basename(f.path)}` });
+  await logAudit({ actorId: (req as any).user.sub, action: 'ADMIN_SET_USER_AVATAR', entity: 'UPLOAD', entityId: up.id, metadata: { targetId } });
 });
 
 export default router;

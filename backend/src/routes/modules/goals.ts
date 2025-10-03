@@ -3,6 +3,7 @@ import { prisma } from '../../prisma';
 import { z } from 'zod';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { sanitizeText } from '../../utils/sanitize';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
 
@@ -70,6 +71,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (re
     },
   });
   res.status(201).json({ goal: created });
+  await logAudit({ actorId: userId, action: 'GOAL_CREATED', entity: 'GOAL', entityId: created.id, metadata: { title: created.title, scope: created.scope, target_amount: created.target_amount } });
 });
 
 router.patch('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
@@ -97,10 +99,12 @@ router.patch('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async
     },
   });
   res.json({ goal: updated });
+  await logAudit({ actorId: (req as any).user.sub, action: 'GOAL_UPDATED', entity: 'GOAL', entityId: updated.id, metadata: req.body });
 });
 
 router.delete('/:id', requireAuth, requireRole('LEADER'), async (req, res) => {
   await prisma.goal.delete({ where: { id: req.params.id } });
+  await logAudit({ actorId: (req as any).user.sub, action: 'GOAL_DELETED', entity: 'GOAL', entityId: req.params.id });
   res.json({ ok: true });
 });
 

@@ -51,6 +51,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'LEADER'), async (req, res) =
     joined_at: new Date(),
   }});
   res.status(201).json({ user: { id: created.id, nickname: created.nickname, role: created.role }, temporaryPassword: temp });
+  await logAudit({ actorId: (req as any).user.sub, action: 'USER_CREATED', entity: 'USER', entityId: created.id, metadata: { role: created.role } });
 });
 
 router.patch('/:id/role', requireAuth, requireRole('LEADER'), async (req, res) => {
@@ -103,6 +104,7 @@ router.patch('/me', requireAuth, async (req, res) => {
   const sanitizedDiscord = sanitizeText(body.discord_tag ?? null, 64) ?? undefined;
   const u = await prisma.user.update({ where: { id: meId }, data: { discord_tag: sanitizedDiscord, email: body.email ?? undefined } });
   res.json({ user: { id: u.id, nickname: u.nickname, discord_tag: u.discord_tag, email: u.email } });
+  await logAudit({ actorId: meId, action: 'USER_SELF_UPDATED', entity: 'USER', entityId: meId });
 });
 
 export default router;

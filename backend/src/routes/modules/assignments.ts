@@ -4,6 +4,7 @@ import { prisma } from '../../prisma';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { sanitizeText } from '../../utils/sanitize';
 import { notify } from '../../services/notifications';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (re
     },
   });
   res.status(201).json({ assignment });
+  await logAudit({ actorId: userId, action: 'ASSIGNMENT_CREATED', entity: 'ASSIGNMENT', entityId: assignment.id });
 });
 
 // Admin list assignments with counts
@@ -72,6 +74,7 @@ router.post('/:id/submit', requireAuth, async (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Assignment not found' });
   const updated = await prisma.assignmentSubmission.update({ where: { id: existing.id }, data: { status: 'SUBMITTED', explanation: sanitizeText(body.explanation, 2000)!, evidence_url: body.evidence_url, submitted_at: new Date() } });
   res.json({ submission: updated });
+  await logAudit({ actorId: userId, action: 'ASSIGNMENT_SUBMITTED', entity: 'ASSIGNMENT_SUBMISSION', entityId: updated.id, metadata: { assignment_id: req.params.id } });
 });
 
 // Admin approve/reject

@@ -45,6 +45,7 @@ router.post('/', requireAuth, upload.array('files', 5), async (req, res) => {
   }
 
   res.status(201).json({ submission: sub });
+  await logAudit({ actorId: userId, action: 'SUBMISSION_CREATED', entity: 'GOAL_SUBMISSION', entityId: sub.id, metadata: { goal_id: body.goal_id, amount: body.amount ?? null } });
 });
 
 // Admin list submissions
@@ -176,8 +177,8 @@ router.delete('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), asyn
   });
 
   await notify(sub.submitted_by, 'GOAL_STATUS', 'Contribuição removida', 'Sua contribuição foi removida pela administração. Você pode enviar novamente.');
+  await logAudit({ actorId: (req as any).user.sub, action: 'SUBMISSION_DELETED', entity: 'GOAL_SUBMISSION', entityId: sub.id, metadata: { goal_id: sub.goal_id, status: sub.status } });
   res.json({ ok: true });
 });
 
 export default router;
-
