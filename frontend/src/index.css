@@ -26,8 +26,21 @@ body {
 .title-pixel { @apply font-pixel text-neon-500 drop-shadow; }
 
 /* Unified inputs */
-input[type="text"], input[type="email"], input[type="number"], input[type="password"], textarea, select {
+input[type="text"], input[type="email"], input[type="number"], input[type="password"], input[type="url"], textarea, select {
   @apply w-full mt-1 px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:outline-none focus:border-neon-600;
+}
+
+/* Autofill fix (Chrome/Edge) to avoid white background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px #1b1b22 inset;
+  box-shadow: 0 0 0px 1000px #1b1b22 inset;
 }
 
 .select-input {

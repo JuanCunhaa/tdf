@@ -18,6 +18,7 @@ import AdminLogs from './pages/admin/Logs';
 import AdminCreateUser from './pages/admin/CreateUser';
 import AdminCreateSubmission from './pages/admin/CreateSubmission';
 import AdminAssignments from './pages/admin/Assignments';
+import SubmissionsHub from './pages/admin/SubmissionsHub';
 import Downloads from './pages/Downloads';
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -56,6 +57,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             {token ? (
               <>
                 <Link to="/app" className="hover:text-neon-500">Meu Painel</Link>
+                <Link to="/app/tasks" className="hover:text-neon-500">Submissões</Link>
                 {['ADMIN','ELITE','LEADER'].includes(role||'') && (<Link to="/admin" className="hover:text-neon-500">Admin</Link>)}
                 <span className="text-slate-400">{nickname}</span>
                 <button className="btn" onClick={logout}>Sair</button>
@@ -90,6 +92,7 @@ export default function App() {
           <Route path="/app/tasks" element={<Protected><UserTasks /></Protected>} />
 
           <Route path="/admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
+          <Route path="/admin/submissions-hub" element={<AdminOnly><SubmissionsHub /></AdminOnly>} />
           <Route path="/admin/forms" element={<AdminOnly><AdminForms /></AdminOnly>} />
           <Route path="/admin/members" element={<AdminOnly><AdminMembers /></AdminOnly>} />
           <Route path="/admin/create-user" element={<AdminOnly><AdminCreateUser /></AdminOnly>} />
