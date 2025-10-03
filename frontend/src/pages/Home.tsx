@@ -31,7 +31,7 @@ export default function Home() {
                   <img src={s.avatar_url || '/images/logo.png'} className="w-14 h-14 rounded object-cover border border-slate-700" />
                   <div>
                     <div className="font-semibold">{s.nickname}</div>
-                    <div className="text-xs text-slate-400">{s.role}</div>
+                    <div className="text-xs text-slate-400">{roleLabel(s.role)}</div>
                     <div className="text-xs text-slate-500">Discord: {s.discord_tag}</div>
                   </div>
                 </div>
@@ -43,4 +43,14 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+function roleLabel(code: string){
+  switch(code){
+    case 'LEADER': return 'Líder';
+    case 'ELITE': return 'Elite';
+    case 'ADMIN': return 'Admin';
+    case 'MEMBER': return 'Membro';
+    default: return code;
+  }
 }

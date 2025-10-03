@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { API_URL, api, useAuth } from '../../store/auth';
 
 export default function AdminMembers(){
-  const { token } = useAuth();
-  const { role: myRole } = useAuth();
+  const { token, role: myRole } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [error, setError] = useState<string|null>(null);
 
@@ -47,7 +46,7 @@ export default function AdminMembers(){
                   </select>
                 </td>
                 <td className="p-2">
-                  <select className="bg-slate-800 border border-slate-700 rounded" value={u.status} onChange={e=>setStatus(u.id, e.target.value)} disabled={myRole !== 'LEADER'}>
+                  <select className="bg-slate-800 border border-slate-700 rounded" value={u.status} onChange={e=>setStatus(u.id, e.target.value)} disabled={!['LEADER','ELITE'].includes(myRole||'')}>
                     {['ACTIVE','INACTIVE','BANNED'].map(s=> <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
@@ -57,7 +56,7 @@ export default function AdminMembers(){
                 </td>
                 <td className="p-2 space-x-2">
                   <button className="btn" onClick={()=>resetPass(u.id)} disabled={!['LEADER','ADMIN','ELITE'].includes(myRole||'')}>Resetar senha</button>
-                  {myRole === 'LEADER' && (
+                  {['LEADER','ELITE'].includes(myRole||'') && (
                     <button className="btn bg-red-700 hover:bg-red-600" onClick={()=>deactivate(u.id)}>Desativar</button>
                   )}
                 </td>

@@ -61,7 +61,7 @@ router.patch('/:id/role', requireAuth, requireRole('LEADER'), async (req, res) =
   res.json({ id: u.id, role: u.role });
 });
 
-router.patch('/:id/status', requireAuth, requireRole('LEADER'), async (req, res) => {
+router.patch('/:id/status', requireAuth, requireRole('LEADER', 'ELITE', 'ADMIN'), async (req, res) => {
   const schema = z.object({ status: z.enum(['ACTIVE', 'INACTIVE', 'BANNED']) });
   const { status } = schema.parse(req.body);
   const u = await prisma.user.update({ where: { id: req.params.id }, data: { status } });
@@ -89,7 +89,7 @@ router.get('/export.csv', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), 
 });
 
 // Delete (deactivate) user — LEADER only
-router.delete('/:id', requireAuth, requireRole('LEADER'), async (req, res) => {
+router.delete('/:id', requireAuth, requireRole('LEADER', 'ELITE', 'ADMIN'), async (req, res) => {
   const u = await prisma.user.update({ where: { id: req.params.id }, data: { status: 'INACTIVE' } });
   await logAudit({ actorId: (req as any).user.sub, action: 'USER_DEACTIVATED', entity: 'USER', entityId: u.id });
   res.json({ ok: true });
