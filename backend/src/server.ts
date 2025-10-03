@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import { env } from './config/env';
 import { errorHandler } from './middleware/error';
 import router from './routes';
+import { ensureSeedAdmin } from './bootstrap';
 
 const app = express();
 
@@ -34,6 +35,9 @@ app.get('/health', (_req, res) => {
 app.use('/api', router);
 
 app.use(errorHandler);
+
+// Bootstrap admin if enabled
+ensureSeedAdmin().catch((e) => console.error('[bootstrap] error:', e));
 
 app.listen(env.PORT, () => {
   console.log(`TDF API running on http://localhost:${env.PORT}`);

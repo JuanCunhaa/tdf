@@ -11,6 +11,13 @@ const schema = z.object({
   DISCORD_BOT_TOKEN: z.string().optional(),
   DISCORD_CHANNEL_ID: z.string().optional(),
   CORS_ORIGIN: z.string().optional(),
+  // Optional bootstrap admin
+  SEED_ADMIN_ENABLED: z.string().optional(),
+  SEED_ADMIN_EMAIL: z.string().email().optional(),
+  SEED_ADMIN_PASSWORD: z.string().optional(),
+  SEED_ADMIN_NICKNAME: z.string().optional(),
+  SEED_ADMIN_DISCORD: z.string().optional(),
+  SEED_ADMIN_ROLE: z.enum(['LEADER','ELITE','ADMIN','MEMBER']).optional(),
 });
 
 export const env = schema.parse(process.env);
