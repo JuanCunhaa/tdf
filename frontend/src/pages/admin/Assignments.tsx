@@ -31,6 +31,7 @@ export default function AdminAssignments(){
 
   async function approve(id:string){ await api(`/assignments/submissions/${id}/approve`, { method:'POST' }, token!); load(); }
   async function reject(id:string){ const reason = prompt('Motivo?')||''; await api(`/assignments/submissions/${id}/reject`, { method:'POST', body: JSON.stringify({ reason }) }, token!); load(); }
+  async function removeSub(id:string){ if(!confirm('Apagar esta submissão?')) return; await api(`/assignments/submissions/${id}`, { method:'DELETE' }, token!); load(); }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -69,6 +70,7 @@ export default function AdminAssignments(){
                   <div className="space-x-2">
                     <button className="btn" onClick={()=>approve(s.id)}>Aprovar</button>
                     <button className="btn bg-red-700 hover:bg-red-600" onClick={()=>reject(s.id)}>Rejeitar</button>
+                    <button className="btn bg-slate-700 hover:bg-slate-600" onClick={()=>removeSub(s.id)}>Apagar</button>
                   </div>
                 </div>
               </li>
@@ -98,4 +100,3 @@ export default function AdminAssignments(){
     </div>
   );
 }
-

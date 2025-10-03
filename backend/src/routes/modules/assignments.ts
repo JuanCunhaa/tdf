@@ -96,5 +96,12 @@ router.post('/submissions/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE'
   res.json({ ok: true });
 });
 
-export default router;
+// Admin delete a submission (any status)
+router.delete('/submissions/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
+  const sub = await prisma.assignmentSubmission.findUnique({ where: { id: req.params.id } });
+  if (!sub) return res.status(404).json({ error: 'Not found' });
+  await prisma.assignmentSubmission.delete({ where: { id: sub.id } });
+  res.json({ ok: true });
+});
 
+export default router;
