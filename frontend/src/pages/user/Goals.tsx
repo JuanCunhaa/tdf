@@ -42,7 +42,7 @@ export default function UserGoals(){
                     <div className="font-semibold">{g.title}</div>
                     <div className="text-sm text-stone-300">{g.description}</div>
                   </div>
-                  <button className="btn" onClick={()=>setSelected(g)}>Enviar comprovação</button>
+                  <button className="btn" onClick={()=>setSelected(g)}>Concluir meta</button>
                 </div>
               </li>
             ))}
