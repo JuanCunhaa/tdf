@@ -1,0 +1,33 @@
+services:
+  - name: tdf-backend
+    type: web
+    runtime: node
+    rootDir: backend
+    plan: starter
+    buildCommand: |
+      npm ci
+      npx prisma generate
+      npx prisma db push
+      npm run build
+    startCommand: node dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: MAX_UPLOAD_MB
+        value: 10
+      - key: CORS_ORIGIN
+        value: https://YOUR_VERCEL_DOMAIN
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: tdf-uploads
+      mountPath: /data
+      sizeGB: 1

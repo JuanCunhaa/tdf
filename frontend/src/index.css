@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tdf-accent: #1f8b4c;
+}
+
+.btn {
+  @apply px-4 py-2 rounded bg-emerald-700 hover:bg-emerald-600 transition shadow-block;
+}
+
+.card {
+  @apply bg-stone-800/80 rounded border border-stone-700 p-4 shadow;
+}
+
+.title-pixel { @apply font-pixel text-emerald-600 drop-shadow; }
+

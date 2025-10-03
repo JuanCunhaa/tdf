@@ -1,0 +1,324 @@
+// Prisma schema for PostgreSQL according to TDF spec
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  LEADER
+  ELITE
+  ADMIN
+  MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum GoalType {
+  FARM
+  BUILD
+  RANK
+  EVENT
+  OTHER
+}
+
+enum GoalVisibility {
+  PUBLIC
+  CLAN
+}
+
+enum GoalStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AwardTier {
+  GOLD
+  SILVER
+  BRONZE
+  SPECIAL
+}
+
+enum AwardCategory {
+  EVENT
+  BUILD
+  PVP
+  ECONOMY
+  MILESTONE
+  OTHER
+}
+
+enum UploadKind {
+  USER_AVATAR
+  GOAL_EVIDENCE
+  AWARD_MEDIA
+  APPLICATION_ATTACHMENT
+}
+
+enum NotificationType {
+  FORM_STATUS
+  GOAL_STATUS
+  SYSTEM
+}
+
+model User {
+  id                   String         @id @default(uuid()) @db.Uuid
+  nickname             String         @unique
+  discord_tag          String
+  email                String?        @unique
+  password_hash        String
+  must_change_password Boolean        @default(true)
+  role                 Role
+  status               UserStatus     @default(ACTIVE)
+  joined_at            DateTime?
+  created_at           DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime       @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  created_goals        Goal[]         @relation("UserCreatedGoals")
+  submissions          GoalSubmission[] @relation("SubmissionSubmittedBy")
+  reviewed_submissions GoalSubmission[] @relation("SubmissionReviewedBy")
+  audit_logs           AuditLog[]     @relation("AuditActor")
+  notifications        Notification[] @relation("NotificationRecipient")
+  resets               PasswordReset[]
+  applications_reviewed RecruitmentApplication[] @relation("ApplicationReviewedBy")
+  accepted_applications RecruitmentApplication[] @relation("ApplicationAcceptedUser")
+  uploads              Upload[]
+  userStats            UserStats[]
+  userAchievements     UserAchievement[]
+
+  @@index([role])
+  @@index([status])
+  @@map("USERS")
+}
+
+model RecruitmentApplication {
+  id                   String            @id @default(uuid()) @db.Uuid
+  nickname             String
+  discord_tag          String
+  age                  Int
+  region               String
+  mc_experience        String
+  highest_rank         String
+  preferences          String            // CSV/JSON
+  weekly_hours         Int
+  prior_clan           Boolean
+  why_left_prior_clan  String?
+  why_join_us          String
+  accepts_rules        Boolean
+  portfolio_links      String?
+  attention_word       String
+  status               ApplicationStatus @default(PENDING)
+  reviewed_by          String?           @db.Uuid
+  reviewed_at          DateTime?         @db.Timestamptz(6)
+  accepted_user_id     String?           @db.Uuid
+  created_at           DateTime          @default(now()) @db.Timestamptz(6)
+
+  reviewedBy           User?             @relation("ApplicationReviewedBy", fields: [reviewed_by], references: [id])
+  acceptedUser         User?             @relation("ApplicationAcceptedUser", fields: [accepted_user_id], references: [id])
+  uploads              Upload[]
+
+  @@index([status])
+  @@index([reviewed_by])
+  @@index([created_at])
+  @@map("RECRUITMENT_APPLICATIONS")
+}
+
+model Goal {
+  id           String       @id @default(uuid()) @db.Uuid
+  title        String
+  description  String
+  type         GoalType     @default(OTHER)
+  target_amount Int?
+  unit         String?
+  starts_at    DateTime?    @db.Timestamptz(6)
+  ends_at      DateTime?    @db.Timestamptz(6)
+  visibility   GoalVisibility @default(CLAN)
+  status       GoalStatus   @default(ACTIVE)
+  created_by   String       @db.Uuid
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime     @updatedAt @db.Timestamptz(6)
+
+  createdBy    User         @relation("UserCreatedGoals", fields: [created_by], references: [id])
+  submissions  GoalSubmission[]
+
+  @@index([status])
+  @@index([visibility])
+  @@index([created_by])
+  @@map("GOALS")
+}
+
+model GoalSubmission {
+  id            String           @id @default(uuid()) @db.Uuid
+  goal_id       String           @db.Uuid
+  submitted_by  String           @db.Uuid
+  amount        Int?
+  note          String?
+  status        SubmissionStatus @default(PENDING)
+  reviewed_by   String?          @db.Uuid
+  reviewed_at   DateTime?        @db.Timestamptz(6)
+  created_at    DateTime         @default(now()) @db.Timestamptz(6)
+
+  goal          Goal             @relation(fields: [goal_id], references: [id])
+  submittedBy   User             @relation("SubmissionSubmittedBy", fields: [submitted_by], references: [id])
+  reviewedBy    User?            @relation("SubmissionReviewedBy", fields: [reviewed_by], references: [id])
+  uploads       Upload[]
+
+  @@index([goal_id])
+  @@index([status])
+  @@index([submitted_by])
+  @@map("GOAL_SUBMISSIONS")
+}
+
+model Award {
+  id            String        @id @default(uuid()) @db.Uuid
+  title         String
+  description   String
+  tier          AwardTier     @default(SPECIAL)
+  achieved_on   DateTime      @db.Date
+  category      AwardCategory @default(OTHER)
+  external_link String?
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime      @updatedAt @db.Timestamptz(6)
+
+  uploads       Upload[]
+
+  @@index([achieved_on])
+  @@index([category])
+  @@index([tier])
+  @@map("AWARDS")
+}
+
+model Upload {
+  id                 String      @id @default(uuid()) @db.Uuid
+  kind               UploadKind
+  storage_path       String
+  mime_type          String
+  size_bytes         Int
+  user_id            String?     @db.Uuid
+  goal_submission_id String?     @db.Uuid
+  award_id           String?     @db.Uuid
+  application_id     String?     @db.Uuid
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+
+  user               User?       @relation(fields: [user_id], references: [id])
+  goalSubmission     GoalSubmission? @relation(fields: [goal_submission_id], references: [id])
+  award              Award?      @relation(fields: [award_id], references: [id])
+  application        RecruitmentApplication? @relation(fields: [application_id], references: [id])
+
+  @@index([kind])
+  @@index([goal_submission_id])
+  @@index([award_id])
+  @@index([application_id])
+  @@map("UPLOADS")
+}
+
+model Achievement {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique
+  name        String
+  description String
+  icon        String?
+  points      Int     @default(0)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  users       UserAchievement[]
+
+  @@map("ACHIEVEMENTS")
+}
+
+model UserAchievement {
+  id             String       @id @default(uuid()) @db.Uuid
+  user_id        String       @db.Uuid
+  achievement_id String       @db.Uuid
+  earned_at      DateTime     @default(now()) @db.Timestamptz(6)
+
+  user           User         @relation(fields: [user_id], references: [id])
+  achievement    Achievement  @relation(fields: [achievement_id], references: [id])
+
+  @@unique([user_id, achievement_id])
+  @@map("USER_ACHIEVEMENTS")
+}
+
+model UserStats {
+  id               String   @id @default(uuid()) @db.Uuid
+  user_id          String   @db.Uuid
+  snapshot_date    DateTime @db.Date
+  goals_completed  Int      @default(0)
+  submissions_made Int      @default(0)
+  rank_points      Int      @default(0)
+  playtime_hours   Int      @default(0)
+
+  user             User     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, snapshot_date])
+  @@map("USER_STATS")
+}
+
+model Notification {
+  id           String           @id @default(uuid()) @db.Uuid
+  recipient_id String           @db.Uuid
+  type         NotificationType
+  title        String
+  message      String
+  read         Boolean          @default(false)
+  created_at   DateTime         @default(now()) @db.Timestamptz(6)
+
+  recipient    User             @relation("NotificationRecipient", fields: [recipient_id], references: [id])
+
+  @@index([recipient_id])
+  @@index([read])
+  @@map("NOTIFICATIONS")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actor_id   String   @db.Uuid
+  action     String
+  entity     String
+  entity_id  String?  @db.Uuid
+  metadata   Json?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  actor      User     @relation("AuditActor", fields: [actor_id], references: [id])
+
+  @@index([actor_id])
+  @@index([entity])
+  @@map("AUDIT_LOGS")
+}
+
+model PasswordReset {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  token_hash  String
+  expires_at  DateTime @db.Timestamptz(6)
+  used        Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@map("PASSWORD_RESETS")
+}

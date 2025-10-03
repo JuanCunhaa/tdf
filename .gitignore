@@ -1,0 +1,27 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Env files (keep only .env.example in repo)
+.env
+*.env
+!backend/.env.example
+!frontend/.env.example
+backend/.env
+frontend/.env
+
+# Uploads and generated content
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/static/downloads/*
+!backend/static/downloads/.gitkeep
+imagens/
+
+# IDE
+.vscode/
+.idea/
+*.swp
