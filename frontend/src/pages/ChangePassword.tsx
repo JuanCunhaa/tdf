@@ -21,6 +21,10 @@ export default function ChangePassword(){
       <form className="card space-y-3" onSubmit={submit}>
         {msg && <div className="text-neon-500">{msg}</div>}
         {error && <div className="text-red-400">{error}</div>}
+        <div className="p-3 rounded border border-slate-700 bg-slate-900/50 text-sm text-slate-300">
+          Por segurança, não reutilize uma senha que você usa em outros serviços.
+          Crie uma senha forte e exclusiva (mínimo de 8 caracteres, misture letras, números e símbolos).
+        </div>
         <label className="block text-sm">
           <span>Senha atual</span>
           <input type="password" className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={form.currentPassword} onChange={e=>setForm({...form, currentPassword:e.target.value})} required />

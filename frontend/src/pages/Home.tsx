@@ -25,10 +25,13 @@ export default function Home() {
         <section className="card">
           <h2 className="text-2xl mb-4">Liderança e Elite</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {staff.map((s:any)=> (
+            {staff.map((s:any)=> {
+              const apiBase = (API_URL || '').replace(/\/api$/,'');
+              const avatar = s.avatar_url ? `${apiBase}${s.avatar_url}` : '/images/logo.png';
+              return (
               <div key={s.id} className="p-4 rounded border border-slate-700 bg-slate-800/50 hover:shadow-glow transition">
                 <div className="flex items-center gap-3">
-                  <img src={s.avatar_url || '/images/logo.png'} className="w-14 h-14 rounded object-cover border border-slate-700" />
+                  <img src={avatar} className="w-14 h-14 rounded object-cover border border-slate-700" onError={(e:any)=>{ e.currentTarget.src='/images/logo.png'; }} />
                   <div>
                     <div className="font-semibold">{s.nickname}</div>
                     <div className="text-xs text-slate-400">{roleLabel(s.role)}</div>
@@ -36,7 +39,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             {!staff.length && <div className="text-slate-400">Configure a liderança no Admin e envie fotos.</div>}
           </div>
         </section>
