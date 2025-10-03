@@ -87,7 +87,7 @@ export default function AdminGoals(){
                                 <button className="btn bg-red-700 hover:bg-red-600" onClick={async()=>{ const reason = prompt('Motivo da recusa (opcional):')||''; await api(`/submissions/${c.id}/reject`, { method:'POST', body: JSON.stringify({ reason }) }, token!); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); }}>Recusar</button>
                               </>
                             )}
-                            <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta contribuição?')){ await fetch(`${API_URL}/submissions/${c.id}`, { method:'DELETE', headers: { Authorization: `Bearer ${token}` } }); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
+                            <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta contribuição?')){ try { await api(`/submissions/${c.id}`, { method:'DELETE' }, token!); } catch(e:any){ alert(e.message||'Erro ao excluir'); } const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
                           </div>
                         </li>
                         );
@@ -124,7 +124,7 @@ export default function AdminGoals(){
                                 <button className="btn bg-red-700 hover:bg-red-600" onClick={async()=>{ const reason = prompt('Motivo da recusa (opcional):')||''; await api(`/submissions/${c.id}/reject`, { method:'POST', body: JSON.stringify({ reason }) }, token!); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); }}>Recusar</button>
                               </>
                             )}
-                            <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta submissão?')){ await fetch(`${API_URL}/submissions/${c.id}`, { method:'DELETE', headers: { Authorization: `Bearer ${token}` } }); const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
+                            <button className="btn bg-slate-700 hover:bg-slate-600" onClick={async()=>{ if(confirm('Excluir esta submissão?')){ try { await api(`/submissions/${c.id}`, { method:'DELETE' }, token!); } catch(e:any){ alert(e.message||'Erro ao excluir'); } const d = await api(`/goals/${selected.id}/detail`, {}, token!); setDetail(d); } }}>Excluir</button>
                           </div>
                         </li>
                       );
