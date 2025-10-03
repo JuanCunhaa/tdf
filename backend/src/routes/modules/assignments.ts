@@ -104,4 +104,16 @@ router.delete('/submissions/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LE
   res.json({ ok: true });
 });
 
+// Admin delete an entire assignment (and its submissions)
+router.delete('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (req, res) => {
+  const id = req.params.id;
+  const a = await prisma.assignment.findUnique({ where: { id } });
+  if (!a) return res.status(404).json({ error: 'Not found' });
+  await prisma.$transaction([
+    prisma.assignmentSubmission.deleteMany({ where: { assignment_id: id } }),
+    prisma.assignment.delete({ where: { id } }),
+  ]);
+  res.json({ ok: true });
+});
+
 export default router;

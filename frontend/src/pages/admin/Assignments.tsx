@@ -32,6 +32,7 @@ export default function AdminAssignments(){
   async function approve(id:string){ await api(`/assignments/submissions/${id}/approve`, { method:'POST' }, token!); load(); }
   async function reject(id:string){ const reason = prompt('Motivo?')||''; await api(`/assignments/submissions/${id}/reject`, { method:'POST', body: JSON.stringify({ reason }) }, token!); load(); }
   async function removeSub(id:string){ if(!confirm('Apagar esta submissão?')) return; await api(`/assignments/submissions/${id}`, { method:'DELETE' }, token!); load(); }
+  async function removeAssignment(id:string){ if(!confirm('Apagar esta tarefa e todas as submissões relacionadas?')) return; await api(`/assignments/${id}`, { method:'DELETE' }, token!); load(); }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -90,7 +91,10 @@ export default function AdminAssignments(){
                   <div className="font-semibold">{a.title}</div>
                   <div className="text-sm text-slate-300">{a.description}</div>
                 </div>
-                <div className="text-xs text-slate-400">OPEN {a.counts?.OPEN||0} • SUBMITTED {a.counts?.SUBMITTED||0} • APPR {a.counts?.APPROVED||0}</div>
+                <div className="text-right">
+                  <div className="text-xs text-slate-400">OPEN {a.counts?.OPEN||0} • SUBMITTED {a.counts?.SUBMITTED||0} • APPR {a.counts?.APPROVED||0}</div>
+                  <button className="btn mt-2 bg-slate-700 hover:bg-slate-600" onClick={()=>removeAssignment(a.id)}>Apagar tarefa</button>
+                </div>
               </div>
             </li>
           ))}
