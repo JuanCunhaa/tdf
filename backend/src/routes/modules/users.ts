@@ -69,7 +69,8 @@ router.patch('/me', requireAuth, async (req, res) => {
   const schema = z.object({ discord_tag: z.string().optional(), email: z.string().email().nullable().optional() });
   const body = schema.parse(req.body);
   const meId = (req as any).user.sub as string;
-  const u = await prisma.user.update({ where: { id: meId }, data: { discord_tag: sanitizeText(body.discord_tag || null, 64), email: body.email ?? undefined } });
+  const sanitizedDiscord = sanitizeText(body.discord_tag ?? null, 64) ?? undefined;
+  const u = await prisma.user.update({ where: { id: meId }, data: { discord_tag: sanitizedDiscord, email: body.email ?? undefined } });
   res.json({ user: { id: u.id, nickname: u.nickname, discord_tag: u.discord_tag, email: u.email } });
 });
 
