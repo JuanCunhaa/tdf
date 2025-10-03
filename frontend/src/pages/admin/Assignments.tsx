@@ -43,7 +43,7 @@ export default function AdminAssignments(){
           <h2 className="text-xl">Criar</h2>
           {err && <div className="text-red-400">{err}</div>}
           {msg && <div className="text-neon-500">{msg}</div>}
-          <label className="block text-sm"><span className="text-slate-300">Título</span><input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} /></label>
+          <label className="block text-sm"><span className="text-slate-300">Título</span><input type="text" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} /></label>
           <label className="block text-sm"><span className="text-slate-300">Descrição</span><textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} /></label>
           <div className="text-sm text-slate-300">Atribuir a:</div>
           <div className="max-h-48 overflow-auto border border-slate-700 rounded p-2">

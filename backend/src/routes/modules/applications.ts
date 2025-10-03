@@ -22,6 +22,7 @@ const applicationSchema = z.object({
   focus_area: z.enum(['MINERACAO','FARM','SAQUE']),
   prior_clans: z.string().optional(),
   motivation: z.string().min(5),
+  daily_play_hours: z.coerce.number().int().min(0).max(24).optional(),
   accepts_rules: z.boolean().refine((v) => v === true, 'Deve aceitar as regras'),
   portfolio_links: z.string().optional(),
   challenge_input: z.string().min(3),
@@ -50,6 +51,7 @@ router.post('/', async (req, res) => {
     focus_area: sanitizeText(data.focus_area, 16)!,
     prior_clans: sanitizeText(data.prior_clans || null, 300),
     motivation: sanitizeText(data.motivation, 800)!,
+    daily_play_hours: data.daily_play_hours ?? null,
     accepts_rules: data.accepts_rules,
     portfolio_links: sanitizeText(data.portfolio_links || null, 500),
   } });

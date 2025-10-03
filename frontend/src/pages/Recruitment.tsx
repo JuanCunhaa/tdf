@@ -3,16 +3,25 @@ import { API_URL } from '../store/auth';
 
 export default function Recruitment(){
   const [form, setForm] = useState<any>({
-    nickname:'', real_name:'', discord_tag:'', age:'', country:'', focus_area:'MINERACAO', prior_clans:'', motivation:'', accepts_rules:false, portfolio_links:'', challenge_input:'', challenge_token:''
+    nickname:'',
+    real_name:'',
+    discord_tag:'',
+    age:'',
+    country:'',
+    focus_area:'MINERACAO',
+    prior_clans:'',
+    daily_play_hours:'',
+    motivation:'',
+    accepts_rules:false,
+    portfolio_links:'',
+    challenge_input:'',
+    challenge_token:''
   });
-  // anexos removidos
   const [done, setDone] = useState<{id:string}|null>(null);
   const [error, setError] = useState<string|null>(null);
   const [challenge, setChallenge] = useState<string>('');
 
-  useEffect(()=>{
-    refreshChallenge();
-  },[]);
+  useEffect(()=>{ refreshChallenge(); },[]);
 
   async function refreshChallenge(){
     try{
@@ -27,6 +36,7 @@ export default function Recruitment(){
       const res = await fetch(`${API_URL}/applications`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
         ...form,
         age: Number(form.age),
+        daily_play_hours: form.daily_play_hours!=='' ? Number(form.daily_play_hours) : undefined,
       })});
       if(!res.ok) throw new Error((await res.json()).error || 'Erro');
       const data = await res.json();
@@ -54,6 +64,7 @@ export default function Recruitment(){
           <Input label="País" value={form.country} onChange={(v)=>setForm({...form,country:v})} required />
           <Select label="Se destaca em" value={form.focus_area} onChange={(v)=>setForm({...form,focus_area:v})} options={[{label:'Mineração',value:'MINERACAO'},{label:'Farm',value:'FARM'},{label:'Saque',value:'SAQUE'}]} />
           <Input label="Já participou de outros clãs? Quais?" value={form.prior_clans} onChange={(v)=>setForm({...form,prior_clans:v})} />
+          <Input label="Quanto tempo joga por dia (horas)" type="number" value={form.daily_play_hours} onChange={(v)=>setForm({...form,daily_play_hours:v})} />
           <label className="block text-sm md:col-span-2">
             <span className="text-slate-300">Por que devemos aceitar você no clã?</span>
             <textarea value={form.motivation} onChange={(e)=>setForm({...form,motivation:e.target.value})}></textarea>
@@ -64,7 +75,7 @@ export default function Recruitment(){
             <label htmlFor="rules">Confirmo que li e aceito as regras internas e metas coletivas.</label>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm mb-1">Digite a sequência anti‑bot:</label>
+            <label className="block text-sm mb-1">Digite a sequência anti-bot:</label>
             <div className="flex items-center gap-3">
               <span className="px-3 py-2 rounded bg-slate-900 border border-slate-700 font-mono tracking-widest text-neon-500">{challenge || '...'}</span>
               <button type="button" className="btn-outline" onClick={refreshChallenge}>Recarregar</button>
@@ -94,3 +105,4 @@ function Select({label, value, onChange, options}:{label:string, value:string, o
     </label>
   );
 }
+

@@ -142,6 +142,7 @@ model RecruitmentApplication {
   motivation           String?
   accepts_rules        Boolean
   portfolio_links      String?
+  daily_play_hours     Int?
   // legacy fields kept to avoid data loss and for compatibility
   region               String?
   mc_experience        String?
