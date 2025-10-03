@@ -7,6 +7,7 @@ import { generateTempPassword, hashPassword } from '../../utils/password';
 import { logAudit } from '../../services/audit';
 import { notify } from '../../services/notifications';
 import { sendDiscordMessage } from '../../services/discord';
+import { sanitizeText } from '../../utils/sanitize';
 
 const router = Router();
 
@@ -30,7 +31,18 @@ const applicationSchema = z.object({
 // Public submission
 router.post('/', async (req, res) => {
   const data = applicationSchema.parse(req.body);
-  const app = await prisma.recruitmentApplication.create({ data });
+  const app = await prisma.recruitmentApplication.create({ data: {
+    ...data,
+    nickname: sanitizeText(data.nickname, 32)!,
+    discord_tag: sanitizeText(data.discord_tag, 64)!,
+    region: sanitizeText(data.region, 64)!,
+    mc_experience: sanitizeText(data.mc_experience, 500)!,
+    highest_rank: sanitizeText(data.highest_rank, 64)!,
+    preferences: sanitizeText(data.preferences, 100)!,
+    why_left_prior_clan: sanitizeText(data.why_left_prior_clan || null, 500),
+    why_join_us: sanitizeText(data.why_join_us, 500)!,
+    portfolio_links: sanitizeText(data.portfolio_links || null, 500),
+  } });
   res.status(201).json({ id: app.id, created_at: app.created_at });
 });
 

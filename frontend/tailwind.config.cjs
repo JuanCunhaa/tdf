@@ -7,26 +7,27 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        emerald: {
-          600: '#1f8b4c',
-          700: '#16623a',
-          800: '#114a2b'
+        neon: {
+          500: '#8b5cf6',
+          600: '#7c3aed',
+          700: '#6d28d9',
+          800: '#5b21b6'
         },
-        obsidian: '#0f1317',
-        stone: {
-          700: '#3d3d3d',
-          800: '#2b2b2b',
-          900: '#1e1e1e'
+        obsidian: '#0b0b0f',
+        graphite: '#15151b',
+        slate: {
+          700: '#2a2a33',
+          800: '#1b1b22',
+          900: '#121218'
         }
       },
       fontFamily: {
         pixel: ['"Press Start 2P"', 'monospace']
       },
       boxShadow: {
-        block: '0 0 0 2px #16623a, 4px 4px 0 0 #0b3b22'
+        glow: '0 0 10px rgba(124,58,237,0.6), 0 0 30px rgba(124,58,237,0.4)'
       }
     },
   },
   plugins: [],
 };
-

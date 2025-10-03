@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'node:path';
 import { env } from '../../config/env';
 import mime from 'mime-types';
-import { requireAuth } from '../../middleware/auth';
+import { requireAuth, requireRole } from '../../middleware/auth';
 import { prisma } from '../../prisma';
 
 const router = Router();
@@ -16,7 +16,12 @@ const storage = multer.diskStorage({
     cb(null, name);
   },
 });
-const upload = multer({ storage, limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 1024 } });
+function fileFilter(_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) {
+  const allowed = ['image/png', 'image/jpeg', 'image/webp'];
+  if (!allowed.includes(file.mimetype)) return cb(new Error('Only image uploads allowed'));
+  cb(null, true);
+}
+const upload = multer({ storage, limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 1024 }, fileFilter });
 
 router.post('/avatar', requireAuth, upload.single('file'), async (req, res) => {
   const userId = (req as any).user.sub as string;
@@ -31,5 +36,13 @@ router.post('/application/:id', upload.single('file'), async (req, res) => {
   res.status(201).json({ upload: up, url: `/uploads/${path.basename(f.path)}` });
 });
 
-export default router;
+// Admin upload avatar for a specific user
+router.post('/user/:id/avatar', requireAuth, requireRole('ADMIN', 'LEADER'), upload.single('file'), async (req, res) => {
+  const targetId = req.params.id;
+  const f = req.file!;
+  // optional: remove prior avatars or keep history
+  const up = await prisma.upload.create({ data: { kind: 'USER_AVATAR', storage_path: f.path, mime_type: f.mimetype, size_bytes: f.size, user_id: targetId } });
+  res.status(201).json({ upload: up, url: `/uploads/${path.basename(f.path)}` });
+});
 
+export default router;

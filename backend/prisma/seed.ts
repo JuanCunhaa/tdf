@@ -10,13 +10,13 @@ async function main() {
   const elitePass = 'Elite#1234';
   const memberPass = 'Member#1234';
 
-  const [leader, elite, admin, member] = await Promise.all([
+  const [leader, eliteCheetos, admin, member, eliteYagami] = await Promise.all([
     prisma.user.upsert({
       where: { nickname: 'Noel' },
       update: {},
       create: {
         nickname: 'Noel',
-        discord_tag: 'Noel#0001',
+        discord_tag: 'Noel.JS',
         email: 'leader@tdf.gg',
         password_hash: await hashPassword(leaderPass),
         must_change_password: false,
@@ -26,12 +26,12 @@ async function main() {
       },
     }),
     prisma.user.upsert({
-      where: { nickname: 'Elite01' },
+      where: { nickname: 'Cheetos' },
       update: {},
       create: {
-        nickname: 'Elite01',
-        discord_tag: 'Elite01#0002',
-        email: 'elite01@tdf.gg',
+        nickname: 'Cheetos',
+        discord_tag: 'cheetos1819',
+        email: 'cheetos@tdf.gg',
         password_hash: await hashPassword(elitePass),
         must_change_password: true,
         role: 'ELITE',
@@ -63,6 +63,20 @@ async function main() {
         password_hash: await hashPassword(memberPass),
         must_change_password: true,
         role: 'MEMBER',
+        status: 'ACTIVE',
+        joined_at: new Date(),
+      },
+    }),
+    prisma.user.upsert({
+      where: { nickname: 'Yagami' },
+      update: {},
+      create: {
+        nickname: 'Yagami',
+        discord_tag: 'yagami1001',
+        email: 'yagami@tdf.gg',
+        password_hash: await hashPassword(elitePass),
+        must_change_password: true,
+        role: 'ELITE',
         status: 'ACTIVE',
         joined_at: new Date(),
       },
@@ -123,8 +137,9 @@ async function main() {
 
   console.log('Seed concluído. Credenciais de exemplo:');
   console.log(`LEADER Noel / ${leaderPass}`);
-  console.log(`ADMIN Mod01 / ${adminPass}`);
-  console.log(`ELITE Elite01 / ${elitePass}`);
+  console.log(`ADMIN Mod01 (email admin@tdf.gg) / ${adminPass}`);
+  console.log(`ELITE Cheetos / ${elitePass}`);
+  console.log(`ELITE Yagami / ${elitePass}`);
   console.log(`MEMBER Player01 / ${memberPass}`);
 }
 
@@ -132,4 +147,3 @@ main().then(() => process.exit(0)).catch((e) => {
   console.error(e);
   process.exit(1);
 });
-

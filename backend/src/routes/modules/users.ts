@@ -3,6 +3,7 @@ import { prisma } from '../../prisma';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { z } from 'zod';
 import { generateTempPassword, hashPassword } from '../../utils/password';
+import { sanitizeText } from '../../utils/sanitize';
 import { logAudit } from '../../services/audit';
 
 const router = Router();
@@ -68,7 +69,7 @@ router.patch('/me', requireAuth, async (req, res) => {
   const schema = z.object({ discord_tag: z.string().optional(), email: z.string().email().nullable().optional() });
   const body = schema.parse(req.body);
   const meId = (req as any).user.sub as string;
-  const u = await prisma.user.update({ where: { id: meId }, data: { discord_tag: body.discord_tag, email: body.email ?? undefined } });
+  const u = await prisma.user.update({ where: { id: meId }, data: { discord_tag: sanitizeText(body.discord_tag || null, 64), email: body.email ?? undefined } });
   res.json({ user: { id: u.id, nickname: u.nickname, discord_tag: u.discord_tag, email: u.email } });
 });
 

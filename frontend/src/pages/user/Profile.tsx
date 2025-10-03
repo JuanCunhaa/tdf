@@ -27,7 +27,7 @@ export default function UserProfile(){
       <h1 className="text-3xl">Perfil</h1>
       {user && (
         <div className="card space-y-3">
-          {msg && <div className="text-emerald-400">{msg}</div>}
+          {msg && <div className="text-neon-500">{msg}</div>}
           <div className="text-sm">Nickname: <b>{user.nickname}</b></div>
           <label className="block text-sm">Discord<input className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={discord} onChange={e=>setDiscord(e.target.value)} /></label>
           <label className="block text-sm">E-mail<input type="email" className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={email} onChange={e=>setEmail(e.target.value)} /></label>
@@ -41,4 +41,3 @@ export default function UserProfile(){
     </div>
   );
 }
-

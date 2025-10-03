@@ -19,7 +19,7 @@ export default function AdminGoals(){
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card space-y-2">
           <h2 className="text-xl">Criar</h2>
-          {msg && <div className="text-emerald-400">{msg}</div>}
+          {msg && <div className="text-neon-500">{msg}</div>}
           <Input label="Título" value={form.title} onChange={(v)=>setForm({...form,title:v})} />
           <Input label="Descrição" value={form.description} onChange={(v)=>setForm({...form,description:v})} />
           <Select label="Tipo" value={form.type} onChange={(v)=>setForm({...form,type:v})} options={["FARM","BUILD","RANK","EVENT","OTHER"]} />
@@ -63,4 +63,3 @@ function Select({label, value, onChange, options}:{label:string, value:string, o
     </label>
   );
 }
-

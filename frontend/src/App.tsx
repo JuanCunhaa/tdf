@@ -34,20 +34,20 @@ function Layout({ children }: { children: React.ReactNode }) {
   const { token, role, nickname, logout } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-stone-800 border-b border-stone-700">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="bg-graphite border-b border-slate-700/70">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src="/images/logo.png" onError={(e:any)=>e.currentTarget.style.display='none'} className="w-10 h-10" />
+            <img src="/images/logo.png" onError={(e:any)=>e.currentTarget.style.display='none'} className="w-10 h-10 rounded" />
             <span className="title-pixel">Tropa do Force</span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
-            <Link to="/downloads" className="hover:text-emerald-600">Downloads</Link>
-            <Link to="/recruitment" className="hover:text-emerald-600">Recrutamento</Link>
+            <Link to="/downloads" className="hover:text-neon-500">Downloads</Link>
+            <Link to="/recruitment" className="hover:text-neon-500">Recrutamento</Link>
             {token ? (
               <>
-                <Link to="/app" className="hover:text-emerald-600">Meu Painel</Link>
-                {['ADMIN','ELITE','LEADER'].includes(role||'') && (<Link to="/admin" className="hover:text-emerald-600">Admin</Link>)}
-                <span className="text-stone-400">{nickname}</span>
+                <Link to="/app" className="hover:text-neon-500">Meu Painel</Link>
+                {['ADMIN','ELITE','LEADER'].includes(role||'') && (<Link to="/admin" className="hover:text-neon-500">Admin</Link>)}
+                <span className="text-slate-400">{nickname}</span>
                 <button className="btn" onClick={logout}>Sair</button>
               </>
             ) : (
@@ -57,8 +57,8 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="bg-stone-800 border-t border-stone-700 text-center py-4 text-sm text-stone-400">© TDF</footer>
-    </div>
+      <footer className="bg-graphite border-t border-slate-700/70 text-center py-4 text-sm text-slate-400">© TDF</footer>
+      </div>
   );
 }
 
@@ -91,4 +91,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

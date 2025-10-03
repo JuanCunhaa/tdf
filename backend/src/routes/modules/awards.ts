@@ -6,6 +6,7 @@ import multer from 'multer';
 import path from 'node:path';
 import { env } from '../../config/env';
 import mime from 'mime-types';
+import { sanitizeText } from '../../utils/sanitize';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.post('/', requireAuth, requireRole('ADMIN', 'LEADER'), upload.array('medi
     external_link: z.string().optional(),
   });
   const body = schema.parse(req.body);
-  const created = await prisma.award.create({ data: { ...body, achieved_on: new Date(body.achieved_on) as any } as any });
+  const created = await prisma.award.create({ data: { ...body, title: sanitizeText(body.title, 120)!, description: sanitizeText(body.description, 1000)!, achieved_on: new Date(body.achieved_on) as any } as any });
   const files = (req.files as Express.Multer.File[]) || [];
   if (files.length) {
     await prisma.upload.createMany({
@@ -45,4 +46,3 @@ router.post('/', requireAuth, requireRole('ADMIN', 'LEADER'), upload.array('medi
 });
 
 export default router;
-

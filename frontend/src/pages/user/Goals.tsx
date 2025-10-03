@@ -36,7 +36,7 @@ export default function UserGoals(){
           <h2 className="text-xl mb-2">Ativas</h2>
           <ul className="space-y-2">
             {goals.map((g:any)=> (
-              <li key={g.id} className={`p-2 rounded border ${selected?.id===g.id? 'border-emerald-700':'border-stone-700'}`}>
+              <li key={g.id} className={`p-2 rounded border ${selected?.id===g.id? 'border-neon-700':'border-slate-700'}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold">{g.title}</div>
@@ -53,7 +53,7 @@ export default function UserGoals(){
           {!selected && <div className="text-stone-400">Selecione uma meta na lista.</div>}
           {selected && (
             <div className="space-y-3">
-              {msg && <div className="text-emerald-400">{msg}</div>}
+              {msg && <div className="text-neon-500">{msg}</div>}
               {err && <div className="text-red-400">{err}</div>}
               <div className="text-sm">Meta: <span className="font-semibold">{selected.title}</span></div>
               {selected.target_amount && <label className="block text-sm">Quantia atingida<input className="w-full mt-1 px-3 py-2 rounded bg-stone-800 border border-stone-700" value={amount} onChange={e=>setAmount(e.target.value)} type="number" /></label>}
@@ -70,4 +70,3 @@ export default function UserGoals(){
     </div>
   );
 }
-

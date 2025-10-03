@@ -19,7 +19,7 @@ export default function ChangePassword(){
     <div className="max-w-md mx-auto px-4 py-8">
       <h1 className="text-3xl mb-4">Trocar senha (primeiro acesso)</h1>
       <form className="card space-y-3" onSubmit={submit}>
-        {msg && <div className="text-emerald-400">{msg}</div>}
+        {msg && <div className="text-neon-500">{msg}</div>}
         {error && <div className="text-red-400">{error}</div>}
         <label className="block text-sm">
           <span>Senha atual</span>
@@ -34,4 +34,3 @@ export default function ChangePassword(){
     </div>
   );
 }
-

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../../prisma';
 import { z } from 'zod';
 import { requireAuth, requireRole } from '../../middleware/auth';
+import { sanitizeText } from '../../utils/sanitize';
 
 const router = Router();
 
@@ -32,6 +33,8 @@ router.post('/', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async (re
   const created = await prisma.goal.create({
     data: {
       ...body,
+      title: sanitizeText(body.title, 120)!,
+      description: sanitizeText(body.description, 1000)!,
       starts_at: body.starts_at ? new Date(body.starts_at) : null,
       ends_at: body.ends_at ? new Date(body.ends_at) : null,
       created_by: userId,
@@ -57,6 +60,8 @@ router.patch('/:id', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), async
     where: { id: req.params.id },
     data: {
       ...body,
+      title: body.title === undefined ? undefined : sanitizeText(body.title, 120)!,
+      description: body.description === undefined ? undefined : sanitizeText(body.description, 1000)!,
       starts_at: body.starts_at === undefined ? undefined : body.starts_at ? new Date(body.starts_at) : null,
       ends_at: body.ends_at === undefined ? undefined : body.ends_at ? new Date(body.ends_at) : null,
     },

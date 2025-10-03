@@ -16,7 +16,7 @@ export default function UserDashboard(){
         <div className="card">
           <h2 className="text-xl mb-2">Notificações</h2>
           <ul className="text-sm space-y-2 max-h-64 overflow-auto">
-            {notifs.map((n)=> <li key={n.id}><span className="text-emerald-600">{n.title}:</span> {n.message} <span className="text-xs text-stone-500">{new Date(n.created_at).toLocaleString()}</span></li>)}
+            {notifs.map((n)=> <li key={n.id}><span className="text-neon-600">{n.title}:</span> {n.message} <span className="text-xs text-slate-500">{new Date(n.created_at).toLocaleString()}</span></li>)}
             {!notifs.length && <li className="text-stone-400">Sem notificações ainda.</li>}
           </ul>
         </div>
@@ -31,4 +31,3 @@ export default function UserDashboard(){
     </div>
   );
 }
-

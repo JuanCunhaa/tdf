@@ -26,8 +26,8 @@ export default function Login(){
       <h1 className="text-3xl mb-4">Login</h1>
       <div className="card">
         <div className="flex gap-2 mb-4">
-          <button className={`btn ${mode==='user'?'bg-emerald-600':''}`} onClick={()=>setMode('user')}>Usuário</button>
-          <button className={`btn ${mode==='admin'?'bg-emerald-600':''}`} onClick={()=>setMode('admin')}>Admin</button>
+          <button className={`btn ${mode==='user'?'bg-neon-600':''}`} onClick={()=>setMode('user')}>Usuário</button>
+          <button className={`btn ${mode==='admin'?'bg-neon-600':''}`} onClick={()=>setMode('admin')}>Admin</button>
         </div>
         <form className="space-y-3" onSubmit={submit}>
           {error && <div className="text-red-400">{error}</div>}
@@ -52,4 +52,3 @@ export default function Login(){
     </div>
   );
 }
-

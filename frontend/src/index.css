@@ -3,16 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --tdf-accent: #1f8b4c;
+  --tdf-accent: #7c3aed;
+}
+
+body {
+  @apply bg-obsidian text-white;
+  background-image: radial-gradient(ellipse at top, rgba(124,58,237,0.08), transparent 60%), radial-gradient(ellipse at bottom, rgba(124,58,237,0.06), transparent 60%);
 }
 
 .btn {
-  @apply px-4 py-2 rounded bg-emerald-700 hover:bg-emerald-600 transition shadow-block;
+  @apply px-4 py-2 rounded bg-neon-700 hover:bg-neon-600 transition shadow-glow;
+}
+
+.btn-outline {
+  @apply px-4 py-2 rounded border border-neon-700 text-neon-500 hover:bg-neon-700/20 transition;
 }
 
 .card {
-  @apply bg-stone-800/80 rounded border border-stone-700 p-4 shadow;
+  @apply bg-slate-800/70 rounded border border-slate-700 p-4 shadow;
 }
 
-.title-pixel { @apply font-pixel text-emerald-600 drop-shadow; }
-
+.title-pixel { @apply font-pixel text-neon-500 drop-shadow; }

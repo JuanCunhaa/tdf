@@ -7,10 +7,17 @@ const router = Router();
 router.get('/staff', async (_req, res) => {
   const staff = await prisma.user.findMany({
     where: { role: { in: ['LEADER', 'ELITE'] }, status: 'ACTIVE' },
-    select: { id: true, nickname: true, discord_tag: true, role: true, joined_at: true },
+    include: { uploads: { where: { kind: 'USER_AVATAR' }, orderBy: { created_at: 'desc' }, take: 1 } },
     orderBy: [{ role: 'asc' }, { joined_at: 'asc' }],
   });
-  res.json({ staff });
+  const data = staff.map((u) => ({
+    id: u.id,
+    nickname: u.nickname,
+    role: u.role,
+    discord_tag: u.discord_tag,
+    avatar_url: u.uploads[0]?.storage_path ? `/uploads/${require('node:path').basename(u.uploads[0].storage_path)}` : null,
+  }));
+  res.json({ staff: data });
 });
 
 router.get('/gallery', async (_req, res) => {

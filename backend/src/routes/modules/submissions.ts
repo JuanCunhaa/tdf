@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { logAudit } from '../../services/audit';
 import { notify } from '../../services/notifications';
 import mime from 'mime-types';
+import { sanitizeText } from '../../utils/sanitize';
 
 const router = Router();
 
@@ -33,7 +34,7 @@ router.post('/', requireAuth, upload.array('files', 5), async (req, res) => {
   const schema = z.object({ goal_id: z.string().uuid(), amount: z.coerce.number().int().optional(), note: z.string().optional() });
   const body = schema.parse(req.body);
   const userId = (req as any).user.sub as string;
-  const sub = await prisma.goalSubmission.create({ data: { goal_id: body.goal_id, submitted_by: userId, amount: body.amount ?? null, note: body.note ?? null } });
+  const sub = await prisma.goalSubmission.create({ data: { goal_id: body.goal_id, submitted_by: userId, amount: body.amount ?? null, note: sanitizeText(body.note || null, 1000) } });
 
   const files = (req.files as Express.Multer.File[]) || [];
   if (files.length) {
