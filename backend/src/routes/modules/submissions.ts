@@ -107,4 +107,26 @@ router.post('/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
   res.json({ ok: true });
 });
 
+// Admin create submission on behalf of user
+router.post('/admin-create', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'), upload.array('files', 5), async (req, res) => {
+  const schema = z.object({ user_id: z.string().uuid(), goal_id: z.string().uuid(), amount: z.coerce.number().int().optional(), note: z.string().optional(), status: z.enum(['PENDING','APPROVED','REJECTED']).default('PENDING') });
+  const body = schema.parse(req.body);
+  const sub = await prisma.goalSubmission.create({ data: { goal_id: body.goal_id, submitted_by: body.user_id, amount: body.amount ?? null, note: sanitizeText(body.note || null, 1000), status: body.status } });
+  const files = (req.files as Express.Multer.File[]) || [];
+  if (files.length) {
+    await prisma.upload.createMany({ data: files.map((f) => ({ kind: 'GOAL_EVIDENCE', storage_path: path.resolve(f.path), mime_type: f.mimetype, size_bytes: f.size, goal_submission_id: sub.id })) });
+  }
+  if (body.status === 'APPROVED') {
+    const today = new Date();
+    const snapshotDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const existing = await prisma.userStats.findUnique({ where: { user_id_snapshot_date: { user_id: body.user_id, snapshot_date: snapshotDate } } });
+    if (existing) {
+      await prisma.userStats.update({ where: { id: existing.id }, data: { goals_completed: existing.goals_completed + 1, rank_points: existing.rank_points + 10 } });
+    } else {
+      await prisma.userStats.create({ data: { user_id: body.user_id, snapshot_date: snapshotDate, goals_completed: 1, rank_points: 10, submissions_made: 0, playtime_hours: 0 } });
+    }
+  }
+  res.status(201).json({ submission: sub });
+});
+
 export default router;

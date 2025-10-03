@@ -18,9 +18,13 @@ function signToken(user: { id: string; role: string; nickname: string; must_chan
 }
 
 router.post('/login-user', async (req, res) => {
-  const schema = z.object({ nickname: z.string().min(3), password: z.string().min(6) });
+  const schema = z.object({ nickname: z.string().min(1), password: z.string().min(6) });
   const { nickname, password } = schema.parse(req.body);
-  const user = await prisma.user.findUnique({ where: { nickname } });
+  const nn = nickname.trim();
+  let user = await prisma.user.findUnique({ where: { nickname: nn } });
+  if (!user) {
+    user = await prisma.user.findFirst({ where: { nickname: { equals: nn } } });
+  }
   if (!user) return res.status(401).json({ error: 'Invalid credentials' });
   const ok = await comparePassword(password, user.password_hash);
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
