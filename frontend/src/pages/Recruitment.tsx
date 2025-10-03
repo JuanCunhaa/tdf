@@ -59,7 +59,7 @@ export default function Recruitment(){
         <div className="grid md:grid-cols-2 gap-4">
           <Input label="Nick do Minecraft" value={form.nickname} onChange={(v)=>setForm({...form,nickname:v})} required />
           <Input label="Nome real" value={form.real_name} onChange={(v)=>setForm({...form,real_name:v})} required />
-          <Input label="Discord (com tag)" value={form.discord_tag} onChange={(v)=>setForm({...form,discord_tag:v})} required />
+          <Input label="ID do seu Discord" value={form.discord_tag} onChange={(v)=>setForm({...form,discord_tag:v})} required />
           <Input label="Idade" type="number" value={form.age} onChange={(v)=>setForm({...form,age:v})} required />
           <Input label="País" value={form.country} onChange={(v)=>setForm({...form,country:v})} required />
           <Select label="Se destaca em" value={form.focus_area} onChange={(v)=>setForm({...form,focus_area:v})} options={[{label:'Mineração',value:'MINERACAO'},{label:'Farm',value:'FARM'},{label:'Saque',value:'SAQUE'}]} />

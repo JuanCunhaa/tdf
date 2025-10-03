@@ -132,9 +132,9 @@ router.post('/:id/accept', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
   await notify(user.id, 'FORM_STATUS', 'Bem-vindo ao TDF!', 'Sua aplicação foi aceita. Troque sua senha no primeiro login.');
 
   try {
-    const reviewer = await prisma.user.findUnique({ where: { id: reviewerId }, select: { nickname: true } });
+    const reviewer = await prisma.user.findUnique({ where: { id: reviewerId }, select: { nickname: true, discord_tag: true } });
     const { env } = require('../../config/env');
-    const payload = (require('../../services/discord') as any).buildRecruitmentEmbed({ status: 'ACCEPTED', applicantNick: app.nickname, applicantDiscord: app.discord_tag, reviewer: reviewer?.nickname || 'Equipe' });
+    const payload = (require('../../services/discord') as any).buildRecruitmentEmbed({ status: 'ACCEPTED', applicantNick: app.nickname, applicantDiscord: app.discord_tag, reviewer: reviewer?.discord_tag || reviewer?.nickname || 'Equipe' });
     if (env.DISCORD_RECRUITMENT_WEBHOOK) await (require('../../services/discord') as any).sendDiscordWebhook(env.DISCORD_RECRUITMENT_WEBHOOK, payload);
   } catch {}
   res.json({ ok: true, user: { id: user.id, nickname: user.nickname, role: user.role }, temporaryPassword: tempPassword });
@@ -149,9 +149,9 @@ router.post('/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
   await prisma.recruitmentApplication.update({ where: { id: app.id }, data: { status: 'REJECTED', reviewed_by: reviewerId, reviewed_at: new Date() } });
   await logAudit({ actorId: reviewerId, action: 'FORM_REJECTED', entity: 'RECRUITMENT_APPLICATION', entityId: app.id, metadata: { reason } });
   try {
-    const reviewer = await prisma.user.findUnique({ where: { id: reviewerId }, select: { nickname: true } });
+    const reviewer = await prisma.user.findUnique({ where: { id: reviewerId }, select: { nickname: true, discord_tag: true } });
     const { env } = require('../../config/env');
-    const payload = (require('../../services/discord') as any).buildRecruitmentEmbed({ status: 'REJECTED', applicantNick: app.nickname, applicantDiscord: app.discord_tag, reviewer: reviewer?.nickname || 'Equipe', reason });
+    const payload = (require('../../services/discord') as any).buildRecruitmentEmbed({ status: 'REJECTED', applicantNick: app.nickname, applicantDiscord: app.discord_tag, reviewer: reviewer?.discord_tag || reviewer?.nickname || 'Equipe', reason });
     if (env.DISCORD_RECRUITMENT_WEBHOOK) await (require('../../services/discord') as any).sendDiscordWebhook(env.DISCORD_RECRUITMENT_WEBHOOK, payload);
   } catch {}
   res.json({ ok: true });
