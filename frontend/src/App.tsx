@@ -48,7 +48,6 @@ function Layout({ children }: { children: React.ReactNode }) {
             <span className="title-pixel">Tropa do Force</span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
-            <Link to="/downloads" className="hover:text-neon-500">Downloads</Link>
             <Link to="/recruitment" className="hover:text-neon-500">Recrutamento</Link>
             {token ? (
               <>
