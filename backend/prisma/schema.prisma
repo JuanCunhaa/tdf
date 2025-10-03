@@ -87,6 +87,13 @@ enum NotificationType {
   SYSTEM
 }
 
+enum AssignmentItemStatus {
+  OPEN
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
 model User {
   id                   String         @id @default(uuid()) @db.Uuid
   nickname             String         @unique
@@ -301,6 +308,43 @@ model Notification {
   @@index([recipient_id])
   @@index([read])
   @@map("NOTIFICATIONS")
+}
+
+model Assignment {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String
+  status      GoalStatus @default(ACTIVE)
+  created_by  String   @db.Uuid
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @updatedAt @db.Timestamptz(6)
+
+  createdBy   User     @relation(fields: [created_by], references: [id])
+  submissions AssignmentSubmission[]
+
+  @@map("ASSIGNMENTS")
+}
+
+model AssignmentSubmission {
+  id            String                 @id @default(uuid()) @db.Uuid
+  assignment_id String                 @db.Uuid
+  user_id       String                 @db.Uuid
+  status        AssignmentItemStatus   @default(OPEN)
+  explanation   String?
+  evidence_url  String?
+  submitted_at  DateTime?              @db.Timestamptz(6)
+  reviewed_by   String?                @db.Uuid
+  reviewed_at   DateTime?              @db.Timestamptz(6)
+  created_at    DateTime               @default(now()) @db.Timestamptz(6)
+
+  assignment    Assignment             @relation(fields: [assignment_id], references: [id])
+  user          User                   @relation(fields: [user_id], references: [id])
+  reviewer      User?                  @relation(fields: [reviewed_by], references: [id])
+
+  @@index([assignment_id])
+  @@index([user_id])
+  @@index([status])
+  @@map("ASSIGNMENT_SUBMISSIONS")
 }
 
 model AuditLog {

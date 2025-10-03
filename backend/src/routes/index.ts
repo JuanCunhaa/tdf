@@ -12,6 +12,7 @@ import logs from './modules/logs';
 import admin from './modules/admin';
 import downloads from './modules/downloads';
 import pub from './modules/public';
+import assignments from './modules/assignments';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/logs', logs);
 router.use('/admin', admin);
 router.use('/downloads', downloads);
 router.use('/public', pub);
+router.use('/assignments', assignments);
 
 export default router;
