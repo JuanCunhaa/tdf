@@ -13,7 +13,7 @@ export default function Home() {
       <section className="bg-obsidian">
         <div className="max-w-6xl mx-auto px-4 pt-12 pb-10 text-center">
           <h1 className="text-4xl md:text-5xl title-pixel">Tropa do Force (TDF)</h1>
-          <p className="mt-4 text-slate-300">Clã Rankup — tecnologia, foco, performance. Sempre dark.</p>
+          <p className="mt-4 text-slate-300">Clân focado em farm e mina, ta com nós, ta no topo!</p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <a className="btn" href="/recruitment">Recrutamento</a>
             <a className="btn-outline" href="/login">Login</a>
