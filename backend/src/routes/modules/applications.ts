@@ -6,7 +6,7 @@ import { requireAuth, requireRole } from '../../middleware/auth';
 import { generateTempPassword, hashPassword } from '../../utils/password';
 import { logAudit } from '../../services/audit';
 import { notify } from '../../services/notifications';
-import { sendDiscordMessage } from '../../services/discord';
+import { sendDiscordWebhook, buildRecruitmentEmbed } from '../../services/discord';
 import { sanitizeText } from '../../utils/sanitize';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
@@ -130,7 +130,6 @@ router.post('/:id/accept', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
 
   await logAudit({ actorId: reviewerId, action: 'FORM_ACCEPTED', entity: 'RECRUITMENT_APPLICATION', entityId: app.id, metadata: { accepted_user_id: user.id, nickname: user.nickname } });
   await notify(user.id, 'FORM_STATUS', 'Bem-vindo ao TDF!', 'Sua aplicação foi aceita. Troque sua senha no primeiro login.');
-  await sendDiscordMessage(`🎉 Novo membro entrou no clã: ${user.nickname}`);
 
   try {
     const reviewer = await prisma.user.findUnique({ where: { id: reviewerId }, select: { nickname: true } });
@@ -159,6 +158,7 @@ router.post('/:id/reject', requireAuth, requireRole('ADMIN', 'ELITE', 'LEADER'),
 });
 
 export default router;
+
 
 
 
